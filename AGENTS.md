@@ -55,6 +55,5 @@ use the editor.
 - Equation-driven items (strings by Voc, DC boxes, AC/combiner panel, cable, MC4) are computed by `applyEquations` in `src/lib/formulas.ts` and its port `ACTES_EQUATIONS` in the n8n State Machine (runs after ACTES_AUTO_ADD) — change both together so app and bot quotes match.
 - High Voltage (50/80/125 kW) quotes reuse `applyEquations`: HV inverters use `vmaxHV` for strings, and `hvAccessories` sets battery steps + BCU/EBC/DC protection from the catalog; ported in the bot's `ACTES_EQUATIONS` — change both together.
 - 8–125 kW quotes are sized only by `src/lib/sizing.ts` (presets = accessory templates); bot port is `ACTES_SIZING` in the n8n State Machine — change both together.
-- `formulas.mode` (eq|ranges) switches 8–125 kW sizing in QuoteBuilder and bot `szStart` together.
-- In ranges mode, edited commercial ranges (`formulas.comRanges`, key kW-phase-panels) override `dailyProduction` in QuoteBuilder; bot port is `ACTES_COM_RANGES` on INV_TABLE — change both together.
+- `formulas.mode` (eq|ranges) switches 8–125 kW sizing (QuoteBuilder + bot `szStart`); ranges-mode `comRanges` (kW-phase-panels) override `dailyProduction`, bot port `ACTES_COM_RANGES` — change together.
 - `orders_legacy`: unused old orders table, kept for its rows.
