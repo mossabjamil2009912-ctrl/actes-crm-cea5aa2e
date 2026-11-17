@@ -333,7 +333,7 @@ export const saveCatalogItem = createServerFn({ method: "POST" })
     name: z.string().trim().min(1).max(500),
     price: z.number().nonnegative().nullable(),
     unit: z.string().max(50).nullable(),
-    pdf_url: z.string().url().max(1000).nullable().or(z.literal("").transform(() => null)),
+    pdf_url: z.string().url().max(1000).or(z.string().regex(/^\/[^\s]*$/).max(1000)).nullable().or(z.literal("").transform(() => null)),
     active: z.boolean(),
     specs: z.array(z.string().max(1000)).max(200).optional(),
   }).parse(d))
