@@ -7,6 +7,8 @@ import { DEFAULT_FORMULAS, applyFormulas, type Formulas } from "@/lib/formulas";
 import { BOT_PRESETS } from "@/lib/bot-presets";
 
 const RES = BOT_PRESETS.filter((p) => p.type !== "com");
+const COM = BOT_PRESETS.filter((p) => p.type === "com");
+const groupsOf = <T extends { group: string }>(l: T[]) => [...new Set(l.map((p) => p.group))];
 
 // Keeps bracketed English/number parts like "(1500V)" in one piece inside Arabic text.
 const bidi = (t: string) => t.split(/(\([^()]*[A-Za-z√][^()]*\))/).map((x, i) => (i % 2 ? <bdi key={i} dir="ltr">{x}</bdi> : x));
@@ -208,7 +210,30 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
           ))}
         </div>
         <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
-          {!f ? <p className="text-xs text-muted-foreground">جاري التحميل…</p> : tab === "res" ? (
+          {!f ? <p className="text-xs text-muted-foreground">جاري التحميل…</p> : f.mode === "ranges" ? (
+            tab === "res" ? (
+              <div className="space-y-2">
+                <p className="text-[11px] text-muted-foreground">نطاق كل منظومة = الاستهلاك اليومي (كيلووات ساعة / يوم). يُختار أقرب نطاق للعميل.</p>
+                {groupsOf(RES).map((g, gi) => (
+                  <Eq key={g} n={gi + 1} title={g}>
+                    {RES.map((p, i) => p.group !== g ? null : f.resRanges[i]!.map((v, j) => <Num key={i + "-" + j} label={p.title} value={v} onChange={(n) => setRange(i, j, n)} />))}
+                  </Eq>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-[11px] text-muted-foreground">نطاق المنظومة التجارية = إنتاجها اليومي (الألواح × قدرة اللوح × ساعات الإشعاع). يُختار أصغر نظام يغطي الاحتياج. لتغيير النطاق عدّل ساعات الإشعاع.</p>
+                <Num label="ساعات الإشعاع" value={f.sun} onChange={(v) => up({ sun: v })} />
+                {groupsOf(COM).map((g, gi) => (
+                  <Eq key={g} n={gi + 1} title={g}>
+                    {COM.filter((p) => p.group === g).map((p) => (
+                      <div key={p.title} className="flex items-center justify-between gap-2 text-[11px]"><span>{p.title}</span><span className="font-bold">حتى {(p.panels * p.pw * f.sun / 1000).toFixed(1)} ك.و.س/يوم</span></div>
+                    ))}
+                  </Eq>
+                ))}
+              </div>
+            )
+          ) : tab === "res" ? (
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
                 <button onClick={() => setResSub("small")} className={`rounded-lg px-1 py-1.5 ${resSub === "small" ? "bg-ink text-ink-foreground" : "bg-muted"}`}>انفرتر 1.6 و 6.2</button>
