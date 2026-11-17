@@ -100,24 +100,56 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
       <div className="flex max-h-[92vh] w-full max-w-lg flex-col gap-2 rounded-xl border border-border bg-card p-3 text-card-foreground shadow-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between"><h2 className="font-bold">المعادلات</h2><button onClick={onClose} aria-label="إغلاق"><X className="h-4 w-4" /></button></div>
         <div className="grid grid-cols-3 gap-1 text-[11px] font-semibold">
-          {([["base", "المعادلات الأساسية"], ["res", "معادلات النظام السكني"], ["com", "معادلات النظام التجاري"]] as const).map(([k, l]) => (
+          {([["base", "كل المعادلات"], ["res", "معادلات النظام السكني"], ["com", "معادلات النظام التجاري"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} className={`rounded-lg px-1 py-1.5 ${tab === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{l}</button>
           ))}
         </div>
         <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
           {!f ? <p className="text-xs text-muted-foreground">جاري التحميل…</p> : tab === "base" ? (
             <div className="space-y-2">
-              <Num label="سعر الكيلووات (ريال يمني)" value={kwh} onChange={setKwh} />
-              <Num label="أيام الشهر" hint="الاستهلاك اليومي = الشهري ÷ أيام الشهر" value={f.days} onChange={(v) => up({ days: v })} />
-              <Num label="ساعات الإشعاع" hint="قدرة الألواح = الاستهلاك اليومي ÷ ساعات الإشعاع" value={f.sun} onChange={(v) => up({ sun: v })} />
-              <Num label="معامل تفريغ البطارية" hint="السعة الاسمية = الاستهلاك الليلي ÷ المعامل" value={f.dod} onChange={(v) => up({ dod: Math.min(v, 1) })} />
-              <div className="pt-2 text-xs font-bold">حساب المنظومة بالمعادلات (8 – 125 كيلو)</div>
-              <Num label="قدرة اللوح (واط)" hint="الألواح = قدرة الألواح × 1000 ÷ قدرة اللوح، مقربة للتساوي على الاسترنقات" value={f.panelW} onChange={(v) => up({ panelW: v })} />
-              <Num label="نسبة الألواح إلى الإنفرتر" hint="عدد الإنفرترات = أكبر(الحمل، قدرة الألواح ÷ النسبة) ÷ قدرة الإنفرتر" value={f.dcRatio} onChange={(v) => up({ dcRatio: v })} />
-              <Num label="أقصى قدرة للجهد المنخفض (كيلو)" hint="فوقها تُعرض إنفرترات هاي فولتج فقط" value={f.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
-              <Num label="أقصى عدد إنفرترات بالتوازي" value={f.maxInverters} onChange={(v) => up({ maxInverters: Math.round(v) })} />
-              <Num label="سماحية نقص الليل (كيلووات ساعة)" hint="نقص أقل من هذا لا يضيف بطارية" value={f.batTol} onChange={(v) => up({ batTol: v })} />
-              <Num label="سعة البطارية (كيلووات ساعة)" hint="البطاريات = السعة الاسمية ÷ سعة البطارية (مقربة للأعلى)" value={f.batKwh} onChange={(v) => up({ batKwh: v })} />
+              <Eq n={1} title="معادلة الاستهلاك اليومي">
+                <p className="text-[11px] text-muted-foreground">الاستهلاك الشهري = الفاتورة ÷ سعر الكيلووات · الاستهلاك اليومي = الشهري ÷ أيام الشهر</p>
+                <Num label="سعر الكيلووات (ريال يمني)" value={kwh} onChange={setKwh} />
+                <Num label="أيام الشهر" value={f.days} onChange={(v) => up({ days: v })} />
+              </Eq>
+              <Eq n={2} title="معادلة اختيار الألواح">
+                <p className="text-[11px] text-muted-foreground">قدرة الألواح (kWp) = الاستهلاك اليومي ÷ ساعات الإشعاع · العدد = قدرة الألواح × 1000 ÷ قدرة اللوح · أقصى ألواح بالاسترنق = ⌊أقصى جهد الإنفرتر ÷ (Voc × معامل الحرارة)⌋ · الاسترنقات = ⌈العدد ÷ أقصى ألواح بالاسترنق⌉ · يُقرَّب العدد للأعلى ليتوزع بالتساوي على الاسترنقات · الكنشات = الاسترنقات × الأطقم لكل استرنق</p>
+                <Num label="ساعات الإشعاع اليومي" value={f.sun} onChange={(v) => up({ sun: v })} />
+                <Num label="قدرة اللوح (واط)" value={f.panelW} onChange={(v) => up({ panelW: v })} />
+                <Num label="جهد اللوح Voc (فولت)" value={f.panelVoc} onChange={(v) => up({ panelVoc: v })} />
+                <Num label="معامل الأمان الحراري" value={f.coldFactor} onChange={(v) => up({ coldFactor: v })} />
+                <Num label="أقصى جهد إنفرتر سنجل فاز (فولت)" value={f.vmaxSingle} onChange={(v) => up({ vmaxSingle: v })} />
+                <Num label="أقصى جهد إنفرتر ثري فاز (فولت)" value={f.vmaxThree} onChange={(v) => up({ vmaxThree: v })} />
+                <Num label="أقصى جهد إنفرتر هاي فولتج (فولت)" value={f.vmaxHV} onChange={(v) => up({ vmaxHV: v })} />
+                <p className="text-xs text-muted-foreground">أقصى ألواح بالاسترنق: سنجل {Math.max(1, Math.floor(f.vmaxSingle / (f.panelVoc * f.coldFactor)))} · ثري {Math.max(1, Math.floor(f.vmaxThree / (f.panelVoc * f.coldFactor)))} · هاي فولتج {Math.max(1, Math.floor(f.vmaxHV / (f.panelVoc * f.coldFactor)))}</p>
+                <Num label="أطقم الكنشات MC4 لكل استرنق" value={f.mc4PerString} onChange={(v) => up({ mc4PerString: v })} />
+              </Eq>
+              <Eq n={3} title="معادلة اختيار الإنفرتر">
+                <p className="text-[11px] text-muted-foreground">القدرة المطلوبة = أكبر(الحمل في الساعة، قدرة الألواح ÷ نسبة الألواح إلى الإنفرتر) · عدد الإنفرترات = ⌈القدرة المطلوبة ÷ قدرة الإنفرتر⌉ (حتى الحد الأقصى) · يُختار الأرخص · فوق حد الجهد المنخفض تُعرض إنفرترات هاي فولتج فقط · إنفرتران فأكثر = لوحة تجميع</p>
+                <Num label="نسبة الألواح إلى الإنفرتر" value={f.dcRatio} onChange={(v) => up({ dcRatio: v })} />
+                <Num label="أقصى قدرة للجهد المنخفض (كيلو)" value={f.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
+                <Num label="أقصى عدد إنفرترات بالتوازي" value={f.maxInverters} onChange={(v) => up({ maxInverters: Math.round(v) })} />
+              </Eq>
+              <Eq n={4} title="معادلة اختيار البطاريات">
+                <p className="text-[11px] text-muted-foreground">استهلاك الليل = الاستهلاك اليومي × نسبة الليل · السعة المطلوبة = استهلاك الليل ÷ معامل التفريغ · البطاريات = ⌈السعة ÷ سعة البطارية⌉ (إذا كان النقص أقل من السماحية لا تُضاف بطارية) · هاي فولتج: أقل عدد ثم أي عدد · BCU = ⌈البطاريات ÷ لكل كنترول⌉ · EBC عند ضعف أقل عدد · قاطع حماية لكل BCU</p>
+                <Num label="نسبة الليل عند اختيار 30% ليل" value={f.night[30]} onChange={(v) => up({ night: { ...f.night, 30: v } })} />
+                <Num label="نسبة الليل عند اختيار 50/50" value={f.night[50]} onChange={(v) => up({ night: { ...f.night, 50: v } })} />
+                <Num label="نسبة الليل عند اختيار 70% ليل" value={f.night[70]} onChange={(v) => up({ night: { ...f.night, 70: v } })} />
+                <Num label="معامل تفريغ البطارية" value={f.dod} onChange={(v) => up({ dod: Math.min(v, 1) })} />
+                <Num label="سعة البطارية (كيلووات ساعة)" value={f.batKwh} onChange={(v) => up({ batKwh: v })} />
+                <Num label="سماحية نقص الليل (كيلووات ساعة)" value={f.batTol} onChange={(v) => up({ batTol: v })} />
+                <Num label="أقل عدد بطاريات هاي فولتج" value={f.hvMinBat} onChange={(v) => up({ hvMinBat: Math.round(v) })} />
+                <Num label="أقصى بطاريات لكل كنترول BCU" value={f.hvBatPerBcu} onChange={(v) => up({ hvBatPerBcu: Math.round(v) })} />
+              </Eq>
+              <Eq n={5} title="معادلات الحماية والتوصيل">
+                <p className="text-[11px] text-muted-foreground">صناديق DC = ⌈الاسترنقات ÷ أقصى خطوط⌉ · خطوط الصندوق تُقرَّب لخطوة التقريب · قاطع AC = القدرة ÷ الجهد × معامل الأمان (ثري فاز: ÷ √3×380) · الكابل = متر لكل منظومة</p>
+                <Num label="أقصى عدد خطوط للصندوق" value={f.dcMaxLines} onChange={(v) => up({ dcMaxLines: v })} />
+                <Num label="خطوة التقريب (خطوط)" value={f.dcStep} onChange={(v) => up({ dcStep: v })} />
+                <Num label="جهد سنجل فاز (فولت)" value={f.acSingleV} onChange={(v) => up({ acSingleV: v })} />
+                <Num label="مقسوم ثري فاز (√3×380)" value={f.acThreeDiv} onChange={(v) => up({ acThreeDiv: v })} />
+                <Num label="معامل الأمان" value={f.acSafety} onChange={(v) => up({ acSafety: v })} />
+                <Num label="متر كابل لكل منظومة" value={f.cableM} onChange={(v) => up({ cableM: v })} />
+              </Eq>
             </div>
           ) : tab === "res" ? (
             <div className="space-y-2">
