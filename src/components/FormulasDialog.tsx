@@ -194,6 +194,14 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
     <div dir="rtl" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-2" onClick={onClose}>
       <div className="flex max-h-[92vh] w-full max-w-lg flex-col gap-2 rounded-xl border border-border bg-card p-3 text-card-foreground shadow-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between"><h2 className="font-bold">المعادلات</h2><button onClick={onClose} aria-label="إغلاق"><X className="h-4 w-4" /></button></div>
+        {f && <div className="space-y-1 rounded-lg border border-primary/30 p-2 text-[11px]">
+          <div className="font-bold">طريقة حساب المنظومات (التطبيق والبوت)</div>
+          <div className="grid grid-cols-2 gap-1 font-semibold">
+            {([["eq", "عبر المعادلات"], ["ranges", "عبر النطاقات الجاهزة"]] as const).map(([k, l]) => (
+              <button key={k} onClick={() => up({ mode: k })} className={`rounded-lg px-1 py-1.5 ${f.mode === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{l}</button>
+            ))}
+          </div>
+        </div>}
         <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
           {([["res", "معادلات النظام السكني"], ["com", "معادلات النظام التجاري"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} className={`rounded-lg px-1 py-1.5 ${tab === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{l}</button>
