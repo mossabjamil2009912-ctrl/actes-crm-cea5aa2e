@@ -16,3 +16,6 @@
 - [x] Equations screen: group every equation with all its inputs
 - [x] Connect GitHub API again (project moved to another workspace)
 - [x] Connect n8n again (project moved to another workspace)
+- [ ] Global switch: size systems by equations or by ready-made ranges (app + bot)
+- [ ] Connect GitHub API (project moved to another workspace, Nov 17)
+- [ ] Connect n8n (project moved to another workspace, Nov 17)
