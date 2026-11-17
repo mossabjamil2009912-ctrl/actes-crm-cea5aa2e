@@ -19,3 +19,4 @@
 - [x] Global switch: size systems by equations or by ready-made ranges (app + bot)
 - [x] Connect GitHub API (project moved to another workspace, Nov 17)
 - [x] Connect n8n (project moved to another workspace, Nov 17)
+- [x] Ranges mode: business system ranges editable by hand (app + bot)

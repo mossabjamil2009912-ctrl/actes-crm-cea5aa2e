@@ -7,7 +7,7 @@ import { Search, FilePlus2, Save, Minus, Plus, Trash2, Check, Zap, Battery, Sun,
 import { listCatalog, listCustomers, saveQuote, listQuotes, sendAttachment, ensureCustomerByPhone, uploadQuotePdf, getKwhPrice, setKwhPrice, getFormulas } from "@/lib/crm.functions";
 import { offlineQuery } from "@/lib/offline-cache";
 import { BOT_PRESETS } from "@/lib/bot-presets";
-import { F, applyFormulas } from "@/lib/formulas";
+import { F, applyFormulas, comKey } from "@/lib/formulas";
 import { inverterOptions, inverterForLoad, buildSystem, type InvPick } from "@/lib/sizing";
 import logoClean from "@/assets/actes-logo-clean.png";
 
@@ -104,8 +104,14 @@ const COMMERCIAL: Preset[] = [
 PRESETS.push(...COMMERCIAL);
 // Bot formulas (State Machine), fed with daily kWh directly (no ÷30):
 // production = panels × panel W × 5 / 1000.
-export const dailyProduction = (p: Preset) => p.panels ? p.panels * (p.pw ?? 720) * F.sun / 1000 :
-  p.items.reduce((s, [k, q]) => s + (k === "PV_SUNTECH_595" ? q * 595 : k === "PV_SUNTECH_720" ? q * 720 : 0), 0) * F.sun / 1000;
+// Ranges mode: an edited commercial range (F.comRanges, same key as the bot's ACTES_COM_RANGES) replaces it.
+export const panelsOf = (p: Preset) => p.panels ?? Number((p.title.match(/(\d+) لوح/) ?? [])[1] ?? 0);
+export const comKeyOf = (p: Preset) => comKey(Number((p.group.match(/(\d+(?:\.\d+)?) كيلو/) ?? [])[1] ?? 0), /3 فاز|منظومات تجارية/.test(p.group), panelsOf(p));
+export const dailyProduction = (p: Preset) => {
+  if (p.type === "com" && F.mode === "ranges") { const r = F.comRanges[comKeyOf(p)]; if (r && r > 0) return r; }
+  return p.panels ? p.panels * (p.pw ?? 720) * F.sun / 1000 :
+    p.items.reduce((s, [k, q]) => s + (k === "PV_SUNTECH_595" ? q * 595 : k === "PV_SUNTECH_720" ? q * 720 : 0), 0) * F.sun / 1000;
+};
 // ===== Exact copy of the WhatsApp bot selection rules (State Machine) =====
 // Residential: bot RES_TABLE "range" values (Excel), in the same order as the residential presets.
 // Preset #6 (6.2 kW, 4 panels) is bot r6 AND r7 (identical systems), so it carries both ranges.

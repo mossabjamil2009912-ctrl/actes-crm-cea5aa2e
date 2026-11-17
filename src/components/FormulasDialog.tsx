@@ -5,9 +5,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getFormulas, saveFormulas, getKwhPrice, setKwhPrice } from "@/lib/crm.functions";
 import { DEFAULT_FORMULAS, applyFormulas, type Formulas } from "@/lib/formulas";
 import { BOT_PRESETS } from "@/lib/bot-presets";
+import { PRESETS, comKeyOf, panelsOf } from "@/components/QuoteBuilder";
 
 const RES = BOT_PRESETS.filter((p) => p.type !== "com");
-const COM = BOT_PRESETS.filter((p) => p.type === "com");
+const COM = PRESETS.filter((p) => p.type === "com");
 const groupsOf = <T extends { group: string }>(l: T[]) => [...new Set(l.map((p) => p.group))];
 
 // Keeps bracketed English/number parts like "(1500V)" in one piece inside Arabic text.
@@ -222,13 +223,15 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-[11px] text-muted-foreground">نطاق المنظومة التجارية = إنتاجها اليومي (الألواح × قدرة اللوح × ساعات الإشعاع). يُختار أصغر نظام يغطي الاحتياج. لتغيير النطاق عدّل ساعات الإشعاع.</p>
-                <Num label="ساعات الإشعاع" value={f.sun} onChange={(v) => up({ sun: v })} />
+                <p className="text-[11px] text-muted-foreground">نطاق كل منظومة = الاستهلاك اليومي الذي تغطيه (كيلووات ساعة / يوم). يُختار أصغر نظام نطاقه يغطي الاحتياج. القيمة الأولية = الألواح × قدرة اللوح × ساعات الإشعاع، ويمكنك تعديلها.</p>
+                <Num label="ساعات الإشعاع (للنطاقات غير المعدّلة)" value={f.sun} onChange={(v) => up({ sun: v })} />
+                <button onClick={() => up({ comRanges: {} })} className="w-full rounded-lg border border-border px-2 py-1.5 text-[11px]">إرجاع كل النطاقات التجارية للحساب التلقائي</button>
                 {groupsOf(COM).map((g, gi) => (
                   <Eq key={g} n={gi + 1} title={g}>
-                    {COM.filter((p) => p.group === g).map((p) => (
-                      <div key={p.title} className="flex items-center justify-between gap-2 text-[11px]"><span>{p.title}</span><span className="font-bold">حتى {(p.panels * p.pw * f.sun / 1000).toFixed(1)} ك.و.س/يوم</span></div>
-                    ))}
+                    {COM.filter((p) => p.group === g).map((p) => {
+                      const k = comKeyOf(p), auto = Math.round(panelsOf(p) * (p.pw ?? 720) * f.sun / 10) / 100, edited = (f.comRanges[k] ?? 0) > 0;
+                      return <Num key={p.title} label={p.title} hint={edited ? `معدّل — التلقائي ${auto}` : "تلقائي"} value={edited ? f.comRanges[k]! : auto} onChange={(n) => up({ comRanges: { ...f.comRanges, [k]: n } })} />;
+                    })}
                   </Eq>
                 ))}
               </div>
