@@ -116,6 +116,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
               <Num label="نسبة الألواح إلى الإنفرتر" hint="عدد الإنفرترات = أكبر(الحمل، قدرة الألواح ÷ النسبة) ÷ قدرة الإنفرتر" value={f.dcRatio} onChange={(v) => up({ dcRatio: v })} />
               <Num label="أقصى قدرة للجهد المنخفض (كيلو)" hint="فوقها تُعرض إنفرترات هاي فولتج فقط" value={f.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
               <Num label="أقصى عدد إنفرترات بالتوازي" value={f.maxInverters} onChange={(v) => up({ maxInverters: Math.round(v) })} />
+              <Num label="سماحية نقص الليل (كيلووات ساعة)" hint="نقص أقل من هذا لا يضيف بطارية" value={f.batTol} onChange={(v) => up({ batTol: v })} />
               <Num label="سعة البطارية (كيلووات ساعة)" hint="البطاريات = السعة الاسمية ÷ سعة البطارية (مقربة للأعلى)" value={f.batKwh} onChange={(v) => up({ batKwh: v })} />
             </div>
           ) : tab === "res" ? (
