@@ -53,7 +53,6 @@ use the editor.
 - The n8n bot must call only the current CRM host (no fallback to old project hosts): an old host still answers with its own stale data, so the bot silently used old items/prices/texts.
 - Sizing equations (days, sun hours, battery DoD, night %, residential ranges, DC box/AC/cable/MC4 values) live in app_settings key `formulas` via `src/lib/formulas.ts`, edited in the hidden "المعادلات" screen (hold the gear 3 s + code), sent to n8n as `FORMULAS` in bot-catalog and read by the State Machine's `ACTES_FORMULAS` block — one set of values for app and bot.
 - Equation-driven items (strings by Voc, DC boxes, AC/combiner panel, cable, MC4) are computed by `applyEquations` in `src/lib/formulas.ts` and its port `ACTES_EQUATIONS` in the n8n State Machine (runs after ACTES_AUTO_ADD) — change both together so app and bot quotes match.
-- High Voltage (50/80/125 kW) quotes reuse `applyEquations`: HV inverters use `vmaxHV` for strings, and `hvAccessories` sets battery steps + BCU/EBC/DC protection from the catalog; ported in the bot's `ACTES_EQUATIONS` — change both together.
-- 8–125 kW quotes are sized only by `src/lib/sizing.ts` (presets = accessory templates); bot port is `ACTES_SIZING` in the n8n State Machine — change both together.
+- 8–125 kW quotes are sized by `src/lib/sizing.ts` (presets = accessory templates; HV uses `vmaxHV` + `hvAccessories`); bot ports `ACTES_SIZING`/`ACTES_EQUATIONS` — change together.
 - `formulas.mode` (eq|ranges) switches 8–125 kW sizing (QuoteBuilder + bot `szStart`); ranges-mode `comRanges` (kW-phase-panels) override `dailyProduction`, bot port `ACTES_COM_RANGES` — change together.
 - `orders_legacy`: unused old orders table, kept for its rows.
