@@ -8,12 +8,15 @@ import { BOT_PRESETS } from "@/lib/bot-presets";
 
 const RES = BOT_PRESETS.filter((p) => p.type !== "com");
 
+// Keeps bracketed English/number parts like "(1500V)" in one piece inside Arabic text.
+const bidi = (t: string) => t.split(/(\([^()]*[A-Za-z√][^()]*\))/).map((x, i) => (i % 2 ? <bdi key={i} dir="ltr">{x}</bdi> : x));
+
 function Num({ label, value, onChange, hint }: { label: string; value: number; onChange: (v: number) => void; hint?: string }) {
   const [t, setT] = useState(String(value));
   useEffect(() => setT(String(value)), [value]);
   return (
     <label className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-2 py-1.5 text-xs">
-      <span className="min-w-0">{label}{"\u200f"}{hint && <span className="block text-[10px] text-muted-foreground">{hint}{"\u200f"}</span>}</span>
+      <span className="min-w-0">{bidi(label)}{hint && <span className="block text-[10px] text-muted-foreground">{bidi(hint)}</span>}</span>
       <input value={t} inputMode="decimal" onChange={(e) => { const s = e.target.value.replace(/[^\d.]/g, ""); setT(s); const n = Number(s); if (n > 0) onChange(n); }}
         className="w-20 shrink-0 rounded-md border border-border bg-card px-2 py-1 text-center font-bold" />
     </label>
@@ -23,7 +26,7 @@ function Num({ label, value, onChange, hint }: { label: string; value: number; o
 function Eq({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5 rounded-xl border border-border p-2">
-      <div className="text-xs font-bold"><span className="ml-1 rounded bg-primary px-1.5 text-primary-foreground">{n}</span>{title}{"\u200f"}</div>
+      <div className="text-xs font-bold"><span className="ml-1 rounded bg-primary px-1.5 text-primary-foreground">{n}</span>{bidi(title)}</div>
       {children}
     </div>
   );
