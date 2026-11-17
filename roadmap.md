@@ -14,5 +14,5 @@
 - [x] Residential only: remove the 70% day / 30% night option (bot + CRM + ACTES)
 - [x] Connect GitHub API in the new workspace
 - [x] Equations screen: group every equation with all its inputs
-- [ ] Connect GitHub API again (project moved to another workspace)
-- [ ] Connect n8n again (project moved to another workspace)
+- [x] Connect GitHub API again (project moved to another workspace)
+- [x] Connect n8n again (project moved to another workspace)
