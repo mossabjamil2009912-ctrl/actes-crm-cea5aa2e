@@ -78,9 +78,10 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
       <span className="border-b-[1.5px] border-foreground/70 px-1 pb-0.5">{n}</span><span className="px-1 pt-0.5">{d}</span>
     </span>
   );
-  const Ceil = ({ children }: K) => <span className="inline-flex items-center gap-x-1 border-x-[1.5px] border-t-[1.5px] border-primary px-1.5 py-0.5">{children}</span>;
-  const Floor = ({ children }: K) => <span className="inline-flex items-center gap-x-1 border-x-[1.5px] border-b-[1.5px] border-primary px-1.5 py-0.5">{children}</span>;
   const P = ({ children }: K) => <span className="eq-paren inline-flex items-center gap-x-1 border-x-[1.5px] border-primary px-2 py-0.5">{children}</span>;
+
+  const Ceil = P;
+  const Floor = P;
 
   const need = (fx: Formulas, com = false) => (
     <Eq n={1} title="معادلة الاستهلاك اليومي">
@@ -106,7 +107,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
           <Ln l="أقصى ألواح بالاسترنق"><Floor><Fr n="أقصى جهد الإنفرتر" d={<R><V>Voc</V><O c="×" />معامل الحرارة</R>} /></Floor></Ln>
           <Ln l="عدد الاسترنقات"><Ceil><Fr n="العدد الأولي" d="أقصى ألواح بالاسترنق" /></Ceil></Ln>
           <Ln l="الألواح النهائية">الاسترنقات<O c="×" /><Ceil><Fr n="العدد الأولي" d="الاسترنقات" /></Ceil></Ln>
-          <Nt><span className="inline-flex flex-wrap items-center gap-1.5"><Ceil><span className="w-3" /></Ceil>تقريب للأعلى<span className="mx-1">·</span><Floor><span className="w-3" /></Floor>تقريب للأسفل</span></Nt>
+          <Nt>الأعداد تُقرَّب للأعلى، وأقصى ألواح بالاسترنق يُقرَّب للأسفل</Nt>
         </L>
         <Num label="ساعات الإشعاع اليومي" value={fx.sun} onChange={(v) => up({ sun: v })} />
         <Num label="قدرة اللوح (واط)" value={fx.panelW} onChange={(v) => up({ panelW: v })} />
