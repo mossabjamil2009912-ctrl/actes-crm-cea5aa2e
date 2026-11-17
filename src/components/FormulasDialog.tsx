@@ -103,7 +103,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
           <Ln l="أقصى ألواح بالاسترنق"><Floor><Fr n="أقصى جهد الإنفرتر" d={<R><V>Voc</V><O c="×" />معامل الحرارة</R>} /></Floor></Ln>
           <Ln l="عدد الاسترنقات"><Ceil><Fr n="العدد الأولي" d="أقصى ألواح بالاسترنق" /></Ceil></Ln>
           <Ln l="الألواح النهائية">الاسترنقات<O c="×" /><Ceil><Fr n="العدد الأولي" d="الاسترنقات" /></Ceil></Ln>
-          <Nt>⌈ ⌉ تقريب للأعلى · ⌊ ⌋ تقريب للأسفل</Nt>
+          <Nt><span className="inline-flex flex-wrap items-center gap-1.5"><Ceil><span className="w-3" /></Ceil>تقريب للأعلى<span className="mx-1">·</span><Floor><span className="w-3" /></Floor>تقريب للأسفل</span></Nt>
         </L>
         <Num label="ساعات الإشعاع اليومي" value={fx.sun} onChange={(v) => up({ sun: v })} />
         <Num label="قدرة اللوح (واط)" value={fx.panelW} onChange={(v) => up({ panelW: v })} />
