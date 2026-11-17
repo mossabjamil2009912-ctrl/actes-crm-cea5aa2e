@@ -73,53 +73,6 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
     </Eq>
   );
   const per = (v: number, fx: Formulas) => Math.max(1, Math.floor(v / (fx.panelVoc * fx.coldFactor)));
-  const panels = (fx: Formulas, n: number, kind: "single" | "lv" | "hv") => (
-    <Eq n={n} title="معادلة اختيار الألواح">
-      <p className="text-[11px] text-muted-foreground">قدرة الألواح (kWp) = الاستهلاك اليومي ÷ ساعات الإشعاع<br />العدد = ⌈kWp × 1000 ÷ قدرة اللوح⌉<br />أقصى ألواح بالاسترنق = ⌊أقصى جهد الإنفرتر ÷ (Voc × معامل الحرارة)⌋<br />الاسترنقات = ⌈العدد ÷ أقصى ألواح بالاسترنق⌉<br />يُقرَّب العدد للأعلى ليتوزع بالتساوي<br />الكنشات = الاسترنقات × الأطقم لكل استرنق</p>
-      <Num label="ساعات الإشعاع اليومي" value={fx.sun} onChange={(v) => up({ sun: v })} />
-      <Num label="قدرة اللوح (واط)" value={fx.panelW} onChange={(v) => up({ panelW: v })} />
-      <Num label="جهد اللوح Voc (فولت)" value={fx.panelVoc} onChange={(v) => up({ panelVoc: v })} />
-      <Num label="معامل الأمان الحراري" value={fx.coldFactor} onChange={(v) => up({ coldFactor: v })} />
-      {kind !== "hv" && <Num label="أقصى جهد إنفرتر سنجل فاز (فولت)" value={fx.vmaxSingle} onChange={(v) => up({ vmaxSingle: v })} />}
-      {kind === "lv" && <Num label="أقصى جهد إنفرتر ثري فاز (فولت)" value={fx.vmaxThree} onChange={(v) => up({ vmaxThree: v })} />}
-      {kind === "hv" && <Num label="أقصى جهد إنفرتر هاي فولتج (فولت)" value={fx.vmaxHV} onChange={(v) => up({ vmaxHV: v })} />}
-      <p className="text-xs text-muted-foreground">أقصى ألواح بالاسترنق: {kind === "hv" ? `هاي فولتج ${per(fx.vmaxHV, fx)}` : `سنجل ${per(fx.vmaxSingle, fx)}`}{kind === "lv" && ` · ثري ${per(fx.vmaxThree, fx)}`}</p>
-      <Num label="أطقم الكنشات MC4 لكل استرنق" value={fx.mc4PerString} onChange={(v) => up({ mc4PerString: v })} />
-    </Eq>
-  );
-  const inverter = (fx: Formulas, n: number, hv: boolean) => (
-    <Eq n={n} title={`معادلة اختيار الإنفرتر ${hv ? "(هاي فولتج 50 / 80 / 125)" : "(8 / 12 / 16 / 20)"}`}>
-      <p className="text-[11px] text-muted-foreground">القدرة المطلوبة = أكبر(الحمل في الساعة، kWp ÷ نسبة الألواح إلى الإنفرتر)<br />عدد الإنفرترات = ⌈القدرة المطلوبة ÷ قدرة الإنفرتر⌉ (حتى الحد الأقصى)<br />يُختار الأرخص<br />{hv ? "يُستخدم هاي فولتج عندما تتجاوز القدرة حد الجهد المنخفض" : "جهد منخفض ما دامت القدرة ≤ حد الجهد المنخفض"}<br />إنفرتران فأكثر = لوحة تجميع</p>
-      <Num label="نسبة الألواح إلى الإنفرتر" value={fx.dcRatio} onChange={(v) => up({ dcRatio: v })} />
-      <Num label="أقصى قدرة للجهد المنخفض (كيلو)" value={fx.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
-      <Num label="أقصى عدد إنفرترات بالتوازي" value={fx.maxInverters} onChange={(v) => up({ maxInverters: Math.round(v) })} />
-    </Eq>
-  );
-  const battery = (fx: Formulas, n: number, hv: boolean) => (
-    <Eq n={n} title="معادلة اختيار البطاريات">
-      <p className="text-[11px] text-muted-foreground">استهلاك الليل = الاستهلاك اليومي × نسبة الليل<br />البطاريات = ⌈(استهلاك الليل − السماحية) ÷ (سعة البطارية × معامل التفريغ)⌉{hv && <><br />لا تقل عن أقل عدد هاي فولتج<br />BCU = ⌈البطاريات ÷ لكل كنترول⌉<br />EBC عند {2 * fx.hvMinBat} بطاريات فأكثر<br />قاطع حماية لكل BCU</>}</p>
-      <Num label="نسبة الليل عند اختيار 30% ليل" value={fx.night[30]} onChange={(v) => up({ night: { ...fx.night, 30: v } })} />
-      <Num label="نسبة الليل عند اختيار 50/50" value={fx.night[50]} onChange={(v) => up({ night: { ...fx.night, 50: v } })} />
-      <Num label="نسبة الليل عند اختيار 70% ليل" value={fx.night[70]} onChange={(v) => up({ night: { ...fx.night, 70: v } })} />
-      <Num label="معامل تفريغ البطارية" value={fx.dod} onChange={(v) => up({ dod: Math.min(v, 1) })} />
-      <Num label="سعة البطارية (كيلووات ساعة)" value={fx.batKwh} onChange={(v) => up({ batKwh: v })} />
-      <Num label="سماحية نقص الليل (كيلووات ساعة)" value={fx.batTol} onChange={(v) => up({ batTol: v })} />
-      {hv && <Num label="أقل عدد بطاريات هاي فولتج" value={fx.hvMinBat} onChange={(v) => up({ hvMinBat: Math.round(v) })} />}
-      {hv && <Num label="أقصى بطاريات لكل كنترول BCU" value={fx.hvBatPerBcu} onChange={(v) => up({ hvBatPerBcu: Math.round(v) })} />}
-    </Eq>
-  );
-  const protect = (fx: Formulas, n: number, ph: string) => (
-    <Eq n={n} title="معادلات الحماية والتوصيل">
-      <p className="text-[11px] text-muted-foreground">صناديق DC = ⌈الاسترنقات ÷ أقصى خطوط⌉<br />خطوط الصندوق تُقرَّب لخطوة التقريب<br />قاطع AC ({ph}) = القدرة ÷ الجهد × معامل الأمان{ph !== "سنجل" && " (ثري فاز: ÷ √3×380)"}<br />الكابل = متر لكل منظومة</p>
-      <Num label="أقصى عدد خطوط للصندوق" value={fx.dcMaxLines} onChange={(v) => up({ dcMaxLines: v })} />
-      <Num label="خطوة التقريب (خطوط)" value={fx.dcStep} onChange={(v) => up({ dcStep: v })} />
-      {ph !== "ثري" && <Num label="جهد سنجل فاز (فولت)" value={fx.acSingleV} onChange={(v) => up({ acSingleV: v })} />}
-      {ph !== "سنجل" && <Num label="مقسوم ثري فاز (√3×380)" value={fx.acThreeDiv} onChange={(v) => up({ acThreeDiv: v })} />}
-      <Num label="معامل الأمان" value={fx.acSafety} onChange={(v) => up({ acSafety: v })} />
-      <Num label="متر كابل لكل منظومة" value={fx.cableM} onChange={(v) => up({ cableM: v })} />
-    </Eq>
-  );
-
   const items = (fx: Formulas, hv: boolean, single = false) => {
     const vmax = hv ? fx.vmaxHV : fx.vmaxThree;
     let n = 0;
@@ -185,7 +138,6 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
   };
 
   const small = RES.map((p, i) => (/^إنفرتر (1\.6|6\.2) /.test(p.group) ? i : -1)).filter((i) => i >= 0);
-  const big = RES.map((p, i) => (/^إنفرتر (8|12) /.test(p.group) ? i : -1)).filter((i) => i >= 0);
 
   return (
     <div dir="rtl" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-2" onClick={onClose}>
