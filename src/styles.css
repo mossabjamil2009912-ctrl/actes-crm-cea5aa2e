@@ -273,5 +273,5 @@
   .app-frame { width: 111.12%; height: 111.12%; transform: scale(0.9); transform-origin: top right; }
 }
 
-.eq-box .eq-x { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Times New Roman", serif; font-size: 14px; font-style: italic; unicode-bidi: isolate; white-space: normal; }
-.eq-box br + span, .eq-box br + bdi { display: inline; }
+.eq-box .eq-v { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Times New Roman", serif; font-size: 14px; font-style: italic; unicode-bidi: isolate; }
+.eq-box .eq-paren { border-radius: 10px / 50%; }
