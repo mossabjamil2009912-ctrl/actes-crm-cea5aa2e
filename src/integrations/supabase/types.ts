@@ -551,6 +551,59 @@ export type Database = {
       }
       orders: {
         Row: {
+          amount: string | null
+          city: string | null
+          created_at: string
+          customer_id: string | null
+          decided_at: string | null
+          details: string | null
+          id: string
+          invoice_no: string | null
+          method: string | null
+          name: string | null
+          phone: string
+          status: string
+        }
+        Insert: {
+          amount?: string | null
+          city?: string | null
+          created_at?: string
+          customer_id?: string | null
+          decided_at?: string | null
+          details?: string | null
+          id?: string
+          invoice_no?: string | null
+          method?: string | null
+          name?: string | null
+          phone: string
+          status?: string
+        }
+        Update: {
+          amount?: string | null
+          city?: string | null
+          created_at?: string
+          customer_id?: string | null
+          decided_at?: string | null
+          details?: string | null
+          id?: string
+          invoice_no?: string | null
+          method?: string | null
+          name?: string | null
+          phone?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders_legacy: {
+        Row: {
           created_at: string
           id: string
           payload: Json
