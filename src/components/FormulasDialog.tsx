@@ -57,12 +57,14 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
   };
 
   const L = ({ children }: { children: React.ReactNode }) => {
+    const sw = (t: string) => t.replace(/[⌈⌉⌊⌋]/g, (c) => ({ "⌈": "⌉", "⌉": "⌈", "⌊": "⌋", "⌋": "⌊" })[c]!);
+    const flat = (n: React.ReactNode): React.ReactNode[] => React.Children.toArray(n).flatMap((c) => (React.isValidElement(c) && c.type === React.Fragment ? flat((c.props as { children: React.ReactNode }).children) : [c]));
     const fmt = (t: string, k: number) => {
       const i = t.indexOf(" = ");
-      if (i < 0) return <bdi key={k} dir="ltr" className="eq-x">{t}</bdi>;
-      return <span key={k}><span className="font-semibold text-foreground">{t.slice(0, i)}</span><span className="mx-1 text-primary">=</span><bdi dir="ltr" className="eq-x">{t.slice(i + 3)}</bdi></span>;
+      if (i < 0) return <bdi key={k} dir="rtl" className="eq-x">{sw(t)}</bdi>;
+      return <span key={k}><span className="font-semibold text-foreground">{t.slice(0, i)}</span><span className="mx-1 text-primary">=</span><bdi dir="rtl" className="eq-x">{sw(t.slice(i + 3))}</bdi></span>;
     };
-    const kids = React.Children.toArray(children).map((c, k) => (typeof c === "string" ? fmt(c, k) : c));
+    const kids = flat(children).map((c, k) => (typeof c === "string" ? fmt(c, k) : c));
     return <div className="eq-box space-y-1 rounded-lg border border-primary/30 bg-muted/60 px-3 py-2 text-[13px] leading-7">{kids}</div>;
   };
   const need = (fx: Formulas, com = false) => (
