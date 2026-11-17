@@ -1,65 +1,11 @@
 [
- {
-  "capability": "code",
-  "source": "github mossabjamil2009912-ctrl/actes-crm",
-  "outcome": "migrate",
-  "status": "verified",
-  "next_action": null
- },
- {
-  "capability": "schema",
-  "source": "drizzle/migrations 0000-0001 (16 tables)",
-  "outcome": "migrate",
-  "status": "verified",
-  "next_action": null
- },
- {
-  "capability": "records",
-  "source": "actes-crm-data-backup (2026-11-15) via GitHub connector",
-  "outcome": "migrate",
-  "status": "verified",
-  "next_action": "67 customers, 3304 messages, 109 catalog items, 3 quotes, 2 report requests, 13 engineers, 2 settings; bot_button_locks kept from 2026-10-31 snapshot"
- },
- {
-  "capability": "uploaded files",
-  "source": "data/files/crm-attachments",
-  "outcome": "migrate",
-  "status": "verified",
-  "next_action": "13 chat files copied from the old storage, links re-signed"
- },
- {
-  "capability": "auth",
-  "source": "single dashboard password (DASHBOARD_PASSWORD)",
-  "outcome": "keep",
-  "status": "verified",
-  "next_action": "user enters DASHBOARD_PASSWORD"
- },
- {
-  "capability": "n8n bot endpoints",
-  "source": "/api/public/bot-* + BOT_INGEST_SECRET",
-  "outcome": "keep",
-  "status": "pending",
-  "next_action": "secret saved; publish; point n8n at the new published URL"
- },
- {
-  "capability": "github backup job",
-  "source": "/api/public/jobs/github-backup",
-  "outcome": "keep",
-  "status": "pending",
-  "next_action": "GitHub connected; daily schedule deliberately not created until cutover, because the old live app writes to the same backup repo"
- },
- {
-  "capability": "AI",
-  "source": "LOVABLE_API_KEY",
-  "outcome": "keep",
-  "status": "verified",
-  "next_action": null
- },
- {
-  "capability": "cutover",
-  "source": "n8n, ACTES standalone app (acts-bridge), FrontendRedirect point to actes-crm.lovable.app",
-  "outcome": "keep",
-  "status": "pending",
-  "next_action": "user decides whether to move to the new address after publish"
- }
+ {"capability":"code","source":"github mossabjamil2009912-ctrl/actes-crm-0158698b","outcome":"migrate","status":"done","next_action":null},
+ {"capability":"schema","source":"drizzle/migrations 0000-0001 (16 tables) + report_requests.loads","outcome":"migrate","status":"done","next_action":"pre-existing shop orders table kept as orders_legacy"},
+ {"capability":"records","source":"data/*.csv snapshot 2026-10-31 in the repo","outcome":"migrate","status":"done","next_action":"63 customers, 3151 messages, 106 catalog items, 2 quotes, 475 button locks, 1 setting. Newer data lives in private repo actes-crm-data-backup (needs GitHub connector)"},
+ {"capability":"uploaded files","source":"data/files/crm-attachments","outcome":"migrate","status":"done","next_action":"7 PDFs uploaded, chat links re-signed; datasheet links point to /datasheets in this project"},
+ {"capability":"auth","source":"single dashboard password (DASHBOARD_PASSWORD)","outcome":"keep","status":"pending","next_action":"user enters DASHBOARD_PASSWORD"},
+ {"capability":"n8n bot endpoints","source":"/api/public/bot-* + BOT_INGEST_SECRET","outcome":"keep","status":"pending","next_action":"user enters BOT_INGEST_SECRET; publish; point n8n at the new published URL"},
+ {"capability":"github backup job","source":"/api/public/jobs/github-backup","outcome":"keep","status":"pending","next_action":"connect GitHub; create schedules only at cutover"},
+ {"capability":"AI","source":"LOVABLE_API_KEY","outcome":"keep","status":"done","next_action":null},
+ {"capability":"cutover","source":"n8n, ACTES standalone app (acts-bridge), FrontendRedirect","outcome":"keep","status":"pending","next_action":"user decides whether to move to the new address after publish"}
 ]
