@@ -1,0 +1,15 @@
+# Roadmap
+- [x] Reconnect n8n in new workspace
+- [x] ACTS: database tables + server actions
+- [x] ACTS: public app at /acts (quote, engineers directory, talent registration) + rating link page
+- [x] ACTS: CRM admin screen (registrations, engineers, service requests, reviews/reports, talent base)
+- [x] Verify quote + registration end-to-end in browser (rating flow not yet clicked through)
+- [x] Import actes-crm from GitHub into this project (code, schema, 2026-10-31 data snapshot, chat files)
+- [x] Load newer data from actes-crm-data-backup (2026-11-15)
+- [x] Reconnect GitHub connector
+- [x] Turn on the daily GitHub backup schedule (two runs nightly, one commit each)
+- [x] Merge customers/messages/tickets missing from the Nov 15 backup (from the Nov 14 one)
+- [x] Point n8n at the new address (this project now owns actes-crm.lovable.app)
+- [ ] Republish so the faster backup code is live (blocked: user must publish)
+- [x] Residential only: remove the 70% day / 30% night option (bot + CRM + ACTES)
+- [x] Connect GitHub API in the new workspace

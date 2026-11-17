@@ -1,0 +1,1 @@
+ALTER TABLE public.report_requests ADD COLUMN IF NOT EXISTS loads jsonb;
