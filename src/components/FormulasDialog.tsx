@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -56,9 +56,18 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
     setBusy(false);
   };
 
+  const L = ({ children }: { children: React.ReactNode }) => {
+    const fmt = (t: string, k: number) => {
+      const i = t.indexOf(" = ");
+      if (i < 0) return <bdi key={k} dir="ltr" className="eq-x">{t}</bdi>;
+      return <span key={k}><span className="font-semibold text-foreground">{t.slice(0, i)}</span><span className="mx-1 text-primary">=</span><bdi dir="ltr" className="eq-x">{t.slice(i + 3)}</bdi></span>;
+    };
+    const kids = React.Children.toArray(children).map((c, k) => (typeof c === "string" ? fmt(c, k) : c));
+    return <div className="eq-box space-y-1 rounded-lg border border-primary/30 bg-muted/60 px-3 py-2 text-[13px] leading-7">{kids}</div>;
+  };
   const need = (fx: Formulas, com = false) => (
     <Eq n={1} title="معادلة الاستهلاك اليومي">
-      <p className="text-[11px] text-muted-foreground">الاستهلاك الشهري = الفاتورة ÷ سعر الكيلووات{com && <><br />أو = الكيلووات الشهري مباشرة<br />أو = لترات الديزل ÷ 0.27</>}<br />الاستهلاك اليومي = الشهري ÷ أيام الشهر</p>
+      <L>الاستهلاك الشهري = الفاتورة ÷ سعر الكيلووات<br />{com && <>أو مباشرة = الكيلووات الشهري<br />أو = لترات الديزل ÷ 0.27<br /></>}الاستهلاك اليومي = الاستهلاك الشهري ÷ أيام الشهر</L>
       <Num label="سعر الكيلووات (ريال يمني)" value={kwh} onChange={setKwh} />
       <Num label="أيام الشهر" value={fx.days} onChange={(v) => up({ days: v })} />
     </Eq>
@@ -111,12 +120,11 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
     </Eq>
   );
 
-  const L = ({ children }: { children: React.ReactNode }) => <p className="rounded-md bg-muted px-2 py-1.5 font-mono text-[11px] leading-6">{children}</p>;
-  const items = (fx: Formulas, hv: boolean) => {
+  const items = (fx: Formulas, hv: boolean, single = false) => {
     const vmax = hv ? fx.vmaxHV : fx.vmaxThree;
     let n = 0;
     return (<>
-      {need(fx, true)}
+      {need(fx, !single)}
       <Eq n={++n + 1} title="صنف الألواح الشمسية">
         <L>قدرة الألواح kWp = الاستهلاك اليومي ÷ ساعات الإشعاع<br />العدد الأولي = ⌈kWp × 1000 ÷ قدرة اللوح⌉<br />أقصى ألواح بالاسترنق = ⌊أقصى جهد الإنفرتر ÷ (Voc × معامل الحرارة)⌋<br />عدد الاسترنقات = ⌈العدد الأولي ÷ أقصى ألواح بالاسترنق⌉<br />الألواح النهائية = الاسترنقات × ⌈العدد الأولي ÷ الاسترنقات⌉</L>
         <Num label="ساعات الإشعاع اليومي" value={fx.sun} onChange={(v) => up({ sun: v })} />
@@ -124,11 +132,11 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
         <Num label="جهد اللوح Voc (فولت)" value={fx.panelVoc} onChange={(v) => up({ panelVoc: v })} />
         <Num label="معامل الأمان الحراري" value={fx.coldFactor} onChange={(v) => up({ coldFactor: v })} />
         {!hv && <Num label="أقصى جهد إنفرتر سنجل فاز (فولت)" value={fx.vmaxSingle} onChange={(v) => up({ vmaxSingle: v })} />}
-        {!hv && <Num label="أقصى جهد إنفرتر ثري فاز (فولت)" value={fx.vmaxThree} onChange={(v) => up({ vmaxThree: v })} />}
+        {!hv && !single && <Num label="أقصى جهد إنفرتر ثري فاز (فولت)" value={fx.vmaxThree} onChange={(v) => up({ vmaxThree: v })} />}
         {hv && <Num label="أقصى جهد إنفرتر هاي فولتج (فولت)" value={fx.vmaxHV} onChange={(v) => up({ vmaxHV: v })} />}
-        <p className="text-xs text-muted-foreground">النتيجة الآن: {hv ? `هاي فولتج ${per(vmax, fx)} لوح بالاسترنق` : `سنجل ${per(fx.vmaxSingle, fx)} · ثري ${per(fx.vmaxThree, fx)} لوح بالاسترنق`}</p>
+        <p className="text-xs text-muted-foreground">النتيجة الآن: {single ? `سنجل ${per(fx.vmaxSingle, fx)} لوح بالاسترنق` : hv ? `هاي فولتج ${per(vmax, fx)} لوح بالاسترنق` : `سنجل ${per(fx.vmaxSingle, fx)} · ثري ${per(fx.vmaxThree, fx)} لوح بالاسترنق`}</p>
       </Eq>
-      <Eq n={++n + 1} title={hv ? "صنف إنفرتر الجهد العالي" : "صنف الإنفرتر"}>
+      <Eq n={++n + 1} title={hv ? "صنف إنفرتر الجهد العالي" : single ? "صنف الإنفرتر (Single Phase 8 / 12)" : "صنف الإنفرتر"}>
         <L>القدرة المطلوبة = أكبر(حمل الذروة ، kWp ÷ نسبة الألواح للإنفرتر)<br />عدد الإنفرترات = ⌈القدرة المطلوبة ÷ قدرة الإنفرتر⌉ (حتى الحد الأقصى)<br />{hv ? "يُستخدم الهاي فولتج عندما تتجاوز القدرة حد الجهد المنخفض" : "جهد منخفض ما دامت القدرة ≤ حد الجهد المنخفض"}<br />يُختار الأرخص من الخيارات المناسبة</L>
         <Num label="نسبة الألواح إلى الإنفرتر" value={fx.dcRatio} onChange={(v) => up({ dcRatio: v })} />
         <Num label="أقصى قدرة للجهد المنخفض (كيلو)" value={fx.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
@@ -160,9 +168,9 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
         <Num label="خطوة التقريب (خطوط)" value={fx.dcStep} onChange={(v) => up({ dcStep: v })} />
       </Eq>
       <Eq n={++n + 1} title="صنف لوحة AC / لوحة التجميع">
-        <L>{!hv && <>قاطع سنجل فاز = واط الإنفرترات ÷ جهد السنجل × معامل الأمان<br /></>}قاطع ثري فاز = واط الإنفرترات ÷ (√3×380) × معامل الأمان<br />إنفرتر واحد = لوحة AC · إنفرتران فأكثر = لوحة تجميع</L>
+        <L>{single ? "قاطع سنجل فاز = واط الإنفرترات ÷ جهد السنجل × معامل الأمان" : <>{!hv && <>قاطع سنجل فاز = واط الإنفرترات ÷ جهد السنجل × معامل الأمان<br /></>}قاطع ثري فاز = واط الإنفرترات ÷ (√3×380) × معامل الأمان<br />إنفرتر واحد = لوحة AC · إنفرتران فأكثر = لوحة تجميع</>}</L>
         {!hv && <Num label="جهد سنجل فاز (فولت)" value={fx.acSingleV} onChange={(v) => up({ acSingleV: v })} />}
-        <Num label="مقسوم ثري فاز (√3×380)" value={fx.acThreeDiv} onChange={(v) => up({ acThreeDiv: v })} />
+        {!single && <Num label="مقسوم ثري فاز (√3×380)" value={fx.acThreeDiv} onChange={(v) => up({ acThreeDiv: v })} />}
         <Num label="معامل الأمان" value={fx.acSafety} onChange={(v) => up({ acSafety: v })} />
       </Eq>
       <Eq n={++n + 1} title="صنف الكابل">
@@ -210,12 +218,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
                 </Eq>
               </>)}
               {resSub === "big" && (<>
-                {need(f)}
-                <Eq n={2} title="معادلة اختيار المنظومة (8 / 12)">
-                  <p className="text-[11px] text-muted-foreground">يُقارن الاستهلاك اليومي بنطاق كل منظومة<br />8 و 12 لا تُختار أبداً أقل من الاستهلاك<br />بعدها تُحسب الألواح والإنفرتر والبطاريات بالمعادلات التالية</p>
-                  {big.map((i) => f.resRanges[i]!.map((v, j) => <Num key={i + "-" + j} label={RES[i]!.group + " · " + RES[i]!.title} value={v} onChange={(n) => setRange(i, j, n)} />))}
-                </Eq>
-                {panels(f, 3, "single")}{inverter(f, 4, false)}{battery(f, 5, false)}{protect(f, 6, "سنجل")}
+                {items(f, false, true)}
               </>)}
             </div>
           ) : (
