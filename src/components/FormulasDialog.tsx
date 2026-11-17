@@ -108,12 +108,12 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
           {!f ? <p className="text-xs text-muted-foreground">جاري التحميل…</p> : tab === "base" ? (
             <div className="space-y-2">
               <Eq n={1} title="معادلة الاستهلاك اليومي">
-                <p className="text-[11px] text-muted-foreground">الاستهلاك الشهري = الفاتورة ÷ سعر الكيلووات · الاستهلاك اليومي = الشهري ÷ أيام الشهر</p>
+                <p className="text-[11px] text-muted-foreground">الاستهلاك الشهري = الفاتورة ÷ سعر الكيلووات<br />الاستهلاك اليومي = الشهري ÷ أيام الشهر</p>
                 <Num label="سعر الكيلووات (ريال يمني)" value={kwh} onChange={setKwh} />
                 <Num label="أيام الشهر" value={f.days} onChange={(v) => up({ days: v })} />
               </Eq>
               <Eq n={2} title="معادلة اختيار الألواح">
-                <p className="text-[11px] text-muted-foreground">قدرة الألواح (kWp) = الاستهلاك اليومي ÷ ساعات الإشعاع · العدد = قدرة الألواح × 1000 ÷ قدرة اللوح · أقصى ألواح بالاسترنق = ⌊أقصى جهد الإنفرتر ÷ (Voc × معامل الحرارة)⌋ · الاسترنقات = ⌈العدد ÷ أقصى ألواح بالاسترنق⌉ · يُقرَّب العدد للأعلى ليتوزع بالتساوي على الاسترنقات · الكنشات = الاسترنقات × الأطقم لكل استرنق</p>
+                <p className="text-[11px] text-muted-foreground">قدرة الألواح (kWp) = الاستهلاك اليومي ÷ ساعات الإشعاع<br />العدد = قدرة الألواح × 1000 ÷ قدرة اللوح<br />أقصى ألواح بالاسترنق = ⌊أقصى جهد الإنفرتر ÷ (Voc × معامل الحرارة)⌋<br />الاسترنقات = ⌈العدد ÷ أقصى ألواح بالاسترنق⌉<br />يُقرَّب العدد للأعلى ليتوزع بالتساوي على الاسترنقات<br />الكنشات = الاسترنقات × الأطقم لكل استرنق</p>
                 <Num label="ساعات الإشعاع اليومي" value={f.sun} onChange={(v) => up({ sun: v })} />
                 <Num label="قدرة اللوح (واط)" value={f.panelW} onChange={(v) => up({ panelW: v })} />
                 <Num label="جهد اللوح Voc (فولت)" value={f.panelVoc} onChange={(v) => up({ panelVoc: v })} />
@@ -125,13 +125,13 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
                 <Num label="أطقم الكنشات MC4 لكل استرنق" value={f.mc4PerString} onChange={(v) => up({ mc4PerString: v })} />
               </Eq>
               <Eq n={3} title="معادلة اختيار الإنفرتر">
-                <p className="text-[11px] text-muted-foreground">القدرة المطلوبة = أكبر(الحمل في الساعة، قدرة الألواح ÷ نسبة الألواح إلى الإنفرتر) · عدد الإنفرترات = ⌈القدرة المطلوبة ÷ قدرة الإنفرتر⌉ (حتى الحد الأقصى) · يُختار الأرخص · فوق حد الجهد المنخفض تُعرض إنفرترات هاي فولتج فقط · إنفرتران فأكثر = لوحة تجميع</p>
+                <p className="text-[11px] text-muted-foreground">القدرة المطلوبة = أكبر(الحمل في الساعة، قدرة الألواح ÷ نسبة الألواح إلى الإنفرتر)<br />عدد الإنفرترات = ⌈القدرة المطلوبة ÷ قدرة الإنفرتر⌉ (حتى الحد الأقصى)<br />يُختار الأرخص<br />فوق حد الجهد المنخفض تُعرض إنفرترات هاي فولتج فقط<br />إنفرتران فأكثر = لوحة تجميع</p>
                 <Num label="نسبة الألواح إلى الإنفرتر" value={f.dcRatio} onChange={(v) => up({ dcRatio: v })} />
                 <Num label="أقصى قدرة للجهد المنخفض (كيلو)" value={f.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
                 <Num label="أقصى عدد إنفرترات بالتوازي" value={f.maxInverters} onChange={(v) => up({ maxInverters: Math.round(v) })} />
               </Eq>
               <Eq n={4} title="معادلة اختيار البطاريات">
-                <p className="text-[11px] text-muted-foreground">استهلاك الليل = الاستهلاك اليومي × نسبة الليل · السعة المطلوبة = استهلاك الليل ÷ معامل التفريغ · البطاريات = ⌈السعة ÷ سعة البطارية⌉ (إذا كان النقص أقل من السماحية لا تُضاف بطارية) · هاي فولتج: أقل عدد ثم أي عدد · BCU = ⌈البطاريات ÷ لكل كنترول⌉ · EBC عند ضعف أقل عدد · قاطع حماية لكل BCU</p>
+                <p className="text-[11px] text-muted-foreground">استهلاك الليل = الاستهلاك اليومي × نسبة الليل<br />السعة المطلوبة = استهلاك الليل ÷ معامل التفريغ<br />البطاريات = ⌈السعة ÷ سعة البطارية⌉ (إذا كان النقص أقل من السماحية لا تُضاف بطارية)<br />هاي فولتج: أقل عدد ثم أي عدد<br />BCU = ⌈البطاريات ÷ لكل كنترول⌉<br />EBC عند ضعف أقل عدد<br />قاطع حماية لكل BCU</p>
                 <Num label="نسبة الليل عند اختيار 30% ليل" value={f.night[30]} onChange={(v) => up({ night: { ...f.night, 30: v } })} />
                 <Num label="نسبة الليل عند اختيار 50/50" value={f.night[50]} onChange={(v) => up({ night: { ...f.night, 50: v } })} />
                 <Num label="نسبة الليل عند اختيار 70% ليل" value={f.night[70]} onChange={(v) => up({ night: { ...f.night, 70: v } })} />
@@ -142,7 +142,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
                 <Num label="أقصى بطاريات لكل كنترول BCU" value={f.hvBatPerBcu} onChange={(v) => up({ hvBatPerBcu: Math.round(v) })} />
               </Eq>
               <Eq n={5} title="معادلات الحماية والتوصيل">
-                <p className="text-[11px] text-muted-foreground">صناديق DC = ⌈الاسترنقات ÷ أقصى خطوط⌉ · خطوط الصندوق تُقرَّب لخطوة التقريب · قاطع AC = القدرة ÷ الجهد × معامل الأمان (ثري فاز: ÷ √3×380) · الكابل = متر لكل منظومة</p>
+                <p className="text-[11px] text-muted-foreground">صناديق DC = ⌈الاسترنقات ÷ أقصى خطوط⌉<br />خطوط الصندوق تُقرَّب لخطوة التقريب<br />قاطع AC = القدرة ÷ الجهد × معامل الأمان (ثري فاز: ÷ √3×380)<br />الكابل = متر لكل منظومة</p>
                 <Num label="أقصى عدد خطوط للصندوق" value={f.dcMaxLines} onChange={(v) => up({ dcMaxLines: v })} />
                 <Num label="خطوة التقريب (خطوط)" value={f.dcStep} onChange={(v) => up({ dcStep: v })} />
                 <Num label="جهد سنجل فاز (فولت)" value={f.acSingleV} onChange={(v) => up({ acSingleV: v })} />
