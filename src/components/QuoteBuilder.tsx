@@ -89,14 +89,16 @@ const com = (inv: string, invQty: number, ac: string, pv: number, mc4: number, s
   ...(s.bdc ? [["bat_protect_dc1500_250a", s.bdc] as [string, number]] : []),
   ["mc4_connector", mc4], ["cable_cu_1500v_10mm", 1],
 ];
-const S50 = "INV_SOLIS_50K_3P_HV", S125 = "INV_SOLIS_125K_3P_HV";
-const g50 = "منظومات تجارية 50 كيلو", g125 = "منظومات تجارية 125 كيلو";
+const S50 = "INV_SOLIS_50K_3P_HV", S80 = "INV_SOLIS_80K_3P_HV", S125 = "INV_SOLIS_125K_3P_HV";
+const g50 = "منظومات تجارية 50 كيلو", g125 = "منظومات تجارية 125 كيلو", g80 = "منظومات تجارية 80 كيلو";
 const COMMERCIAL: Preset[] = [
   { type: "com", group: g50, title: "50 كيلو · 75 لوح · 4 بطارية هيثيوم (64 كيلو)", items: com(S50, 1, "ac_05", 75, 5, { dc: [["DCBOX_1500_6", 1]], hv: 4, ctrl: 1, bdc: 1 }) },
   { type: "com", group: g50, title: "2× 50 كيلو · 150 لوح · 8 بطارية هيثيوم (128 كيلو)", items: com(S50, 2, "ac_06", 150, 10, { dc: [["DCBOX_1500_10", 1]], hv: 8, ctrl: 1, ebc: 1, bdc: 1 }) },
   { type: "com", group: g50, title: "2× 50 كيلو · 180 لوح · 12 بطارية هيثيوم (192 كيلو)", items: com(S50, 2, "ac_06", 180, 12, { dc: [["DCBOX_1500_6", 2]], hv: 12, ctrl: 1, ebc: 1, bdc: 1 }) },
   { type: "com", group: g50, title: "2× 50 كيلو · 180 لوح · كبينة بايلونتك 313 كيلو", items: com(S50, 2, "ac_06", 180, 12, { dc: [["DCBOX_1500_6", 2]], other: [["CAB_PYLON_313", 1]] }) },
   { type: "com", group: g50, title: "2× 50 كيلو · 180 لوح · 13 بطارية بايلونتك M5", items: com(S50, 2, "ac_06", 180, 12, { dc: [["DCBOX_1500_6", 2]], other: [["BAT_PYLON_M5_15_68K", 13], ["KIT_M5", 1], ["RACK_M5_16", 1], ["CTRL_M5", 1]] }) },
+  { type: "com", group: g80, title: "80 كيلو · 153 لوح · 12 بطارية هيثيوم (192 كيلو)", items: com(S80, 1, "ac_10", 153, 9, { dc: [["DCBOX_1500_10", 1]], hv: 12, ctrl: 1, ebc: 1, bdc: 1 }) },
+  { type: "com", group: g80, title: "80 كيلو · 204 لوح · 18 بطارية هيثيوم (288 كيلو)", items: com(S80, 1, "ac_10", 204, 12, { dc: [["DCBOX_1500_6", 2]], hv: 18, ctrl: 2, ebc: 2, bdc: 2 }) },
   { type: "com", group: g125, title: "125 كيلو · 221 لوح · 12 بطارية هيثيوم (192 كيلو)", items: com(S125, 1, "ac_15", 221, 13, { dc: [["DCBOX_1500_8", 2]], hv: 12, ctrl: 1, ebc: 1, bdc: 1 }) },
   { type: "com", group: g125, title: "2× 125 كيلو · 442 لوح · 24 بطارية هيثيوم (384 كيلو)", items: com(S125, 2, "ac_16", 442, 26, { dc: [["DCBOX_1500_10", 2], ["DCBOX_1500_8", 1]], hv: 24, ctrl: 2, ebc: 2, bdc: 2 }) },
   { type: "com", group: g125, title: "2× 125 كيلو · 646 لوح · 36 بطارية هيثيوم (576 كيلو)", items: com(S125, 2, "ac_16", 646, 38, { dc: [["DCBOX_1500_10", 4]], hv: 36, ctrl: 3, ebc: 3, bdc: 3 }) },
