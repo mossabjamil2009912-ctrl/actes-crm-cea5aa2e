@@ -13,7 +13,7 @@ function Num({ label, value, onChange, hint }: { label: string; value: number; o
   useEffect(() => setT(String(value)), [value]);
   return (
     <label className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background px-2 py-1.5 text-xs">
-      <span className="min-w-0">{label}{hint && <span className="block text-[10px] text-muted-foreground">{hint}</span>}</span>
+      <span className="min-w-0">{label}{"\u200f"}{hint && <span className="block text-[10px] text-muted-foreground">{hint}{"\u200f"}</span>}</span>
       <input value={t} inputMode="decimal" onChange={(e) => { const s = e.target.value.replace(/[^\d.]/g, ""); setT(s); const n = Number(s); if (n > 0) onChange(n); }}
         className="w-20 shrink-0 rounded-md border border-border bg-card px-2 py-1 text-center font-bold" />
     </label>
@@ -23,7 +23,7 @@ function Num({ label, value, onChange, hint }: { label: string; value: number; o
 function Eq({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5 rounded-xl border border-border p-2">
-      <div className="text-xs font-bold"><span className="ml-1 rounded bg-primary px-1.5 text-primary-foreground">{n}</span>{title}</div>
+      <div className="text-xs font-bold"><span className="ml-1 rounded bg-primary px-1.5 text-primary-foreground">{n}</span>{title}{"\u200f"}</div>
       {children}
     </div>
   );
