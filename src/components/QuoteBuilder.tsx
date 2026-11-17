@@ -105,7 +105,7 @@ const BIG_INV: Record<number, [string, number, number]> = { 50: [S50, 15, 5], 80
 export const bigGroup = (kw: number, n: number) => `منظومات تجارية ${kw} كيلو · ${n} إنفرتر`;
 const COMMERCIAL: Preset[] = [
   ...BIG_ROWS.map(([kw, n, , pv, dc, hv]): Preset => {
-    const [inv, str, ac0] = BIG_INV[kw], c = Math.ceil(hv / 12);
+    const [inv, str, ac0] = BIG_INV[kw]!, c = Math.ceil(hv / 12);
     return { type: "com", group: bigGroup(kw, n), title: `${n > 1 ? n + "× " : ""}${kw} كيلو · ${pv} لوح · ${hv} بطارية هيثيوم (${hv * 16} كيلو)`,
       items: com(inv, n, `ac_${String(ac0 + n - 1).padStart(2, "0")}`, pv, Math.ceil(pv / str), { dc: [["DCBOX_1500_10", Math.ceil(dc / 10)]], hv, ctrl: c, ebc: hv > 4 ? c : 0, bdc: c }) };
   }),
