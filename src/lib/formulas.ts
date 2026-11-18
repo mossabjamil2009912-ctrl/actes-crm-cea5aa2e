@@ -45,7 +45,7 @@ export const DEFAULT_FORMULAS: Formulas = {
   dcMaxLines: 10, dcStep: 2, acSingleV: 220, acThreeDiv: 658, acSafety: 1.25, cableM: 1, mc4PerString: 1,
   panelVoc: 48.5, coldFactor: 1.1, vmaxSingle: 500, vmaxThree: 800,
   vmaxHV: 1000, hvMinBat: 4, hvBatPerBcu: 15, ebcOver: 7,
-  panelW: 720, dcRatio: 1.3, dcRatioSolis: 1.6, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, cabKwh: 112, m1Kwh: 4.74, m5Kwh: 15.68, m1MaxKwh: 109.02, cabTol: 5, mode: "eq", comRanges: {}, presetItems: {},
+  panelW: 720, dcRatio: 1.3, dcRatioSolis: 1.6, lvMaxKw: 25, maxInverters: 5, batKwh: 16, batTol: 1, cabKwh: 112, m1Kwh: 4.74, m5Kwh: 15.68, m1MaxKwh: 109.02, cabTol: 5, mode: "eq", comRanges: {}, presetItems: {},
 };
 export const F: Formulas = structuredClone(DEFAULT_FORMULAS);
 export const mergeFormulas = (v: unknown): Formulas => {
