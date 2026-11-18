@@ -20,6 +20,7 @@ export type Formulas = {
   vmaxHV: number;        // high-voltage inverter max DC voltage
   hvMinBat: number;      // HV batteries come in steps of this many (min series)
   hvBatPerBcu: number;   // HV batteries per BCU controller
+  ebcOver: number;       // a BCU group needs an EBC when it holds more than this many batteries
   panelW: number;        // panel watts used for panel count
   dcRatio: number;       // panel kWp per inverter kW (DC/AC ratio) — Deye and other brands
   dcRatioSolis: number;  // DC/AC ratio for Solis inverters
@@ -43,7 +44,7 @@ export const DEFAULT_FORMULAS: Formulas = {
   resRanges: [[1.2], [2.5], [2.5], [4], [4], [5, 7.5], [13], [21], [31.7], [35.6], [55.4], [63.4], [71.3], [83.2], [106.9]],
   dcMaxLines: 10, dcStep: 2, acSingleV: 220, acThreeDiv: 658, acSafety: 1.25, cableM: 1, mc4PerString: 1,
   panelVoc: 48.5, coldFactor: 1.1, vmaxSingle: 500, vmaxThree: 800,
-  vmaxHV: 1000, hvMinBat: 4, hvBatPerBcu: 12,
+  vmaxHV: 1000, hvMinBat: 4, hvBatPerBcu: 15, ebcOver: 7,
   panelW: 720, dcRatio: 1.3, dcRatioSolis: 1.6, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, cabKwh: 112, m1Kwh: 4.74, m5Kwh: 15.68, m1MaxKwh: 109.02, cabTol: 5, mode: "eq", comRanges: {}, presetItems: {},
 };
 export const F: Formulas = structuredClone(DEFAULT_FORMULAS);
@@ -58,7 +59,7 @@ export const mergeFormulas = (v: unknown): Formulas => {
     dcMaxLines: num(o.dcMaxLines, D.dcMaxLines), dcStep: num(o.dcStep, D.dcStep), acSingleV: num(o.acSingleV, D.acSingleV),
     acThreeDiv: num(o.acThreeDiv, D.acThreeDiv), acSafety: num(o.acSafety, D.acSafety), cableM: num(o.cableM, D.cableM), mc4PerString: num(o.mc4PerString, D.mc4PerString), 
     panelVoc: num(o.panelVoc, D.panelVoc), coldFactor: num(o.coldFactor, D.coldFactor), vmaxSingle: num(o.vmaxSingle, D.vmaxSingle), vmaxThree: num(o.vmaxThree, D.vmaxThree),
-    vmaxHV: num(o.vmaxHV, D.vmaxHV), hvMinBat: num(o.hvMinBat, D.hvMinBat), hvBatPerBcu: num(o.hvBatPerBcu, D.hvBatPerBcu),
+    vmaxHV: num(o.vmaxHV, D.vmaxHV), hvMinBat: num(o.hvMinBat, D.hvMinBat), hvBatPerBcu: num(o.hvBatPerBcu, D.hvBatPerBcu), ebcOver: num(o.ebcOver, D.ebcOver),
     panelW: num(o.panelW, D.panelW), dcRatio: num(o.dcRatio, D.dcRatio), dcRatioSolis: num(o.dcRatioSolis, D.dcRatioSolis), lvMaxKw: num(o.lvMaxKw, D.lvMaxKw), maxInverters: num(o.maxInverters, D.maxInverters), batKwh: num(o.batKwh, D.batKwh), batTol: typeof o.batTol === "number" && o.batTol >= 0 ? o.batTol : D.batTol,
     cabKwh: num(o.cabKwh, D.cabKwh), m1Kwh: num(o.m1Kwh, D.m1Kwh), m5Kwh: num(o.m5Kwh, D.m5Kwh), m1MaxKwh: num(o.m1MaxKwh, D.m1MaxKwh), cabTol: num(o.cabTol, D.cabTol),
     mode: o.mode === "ranges" ? "ranges" : "eq",
@@ -71,11 +72,14 @@ export const mergeFormulas = (v: unknown): Formulas => {
 export type Phase = boolean | "hv";
 export const maxPerString = (three: Phase, f: Formulas = F) => Math.max(1, Math.floor((three === "hv" ? f.vmaxHV : three ? f.vmaxThree : f.vmaxSingle) / (f.panelVoc * f.coldFactor)));
 export const stringCount = (panels: number, three: Phase, inverters = 1, f: Formulas = F) => Math.max(inverters, Math.ceil(panels / maxPerString(three, f)));
-// HV battery accessories: at least hvMinBat batteries (any count above); BCU = ⌈n ÷ perBcu⌉; EBC = BCU when n ≥ 2×min; DC protection = BCU.
+// HV battery accessories: at least hvMinBat batteries; BCU = ⌈n ÷ perBcu⌉ (full groups first, remainder last);
+// EBC = number of groups holding more than ebcOver batteries; DC protection = BCU.
 export const hvAccessories = (bat: number, f: Formulas = F) => {
   const n = Math.max(f.hvMinBat, Math.ceil(bat));
   const bcu = Math.ceil(n / f.hvBatPerBcu);
-  return { bat: n, bcu, ebc: n >= 2 * f.hvMinBat ? bcu : 0, bdc: bcu };
+  const last = n - (bcu - 1) * f.hvBatPerBcu;
+  const ebc = (bcu - 1) * (f.hvBatPerBcu > f.ebcOver ? 1 : 0) + (last > f.ebcOver ? 1 : 0);
+  return { bat: n, bcu, ebc, bdc: bcu };
 };
 export const applyFormulas = (v: unknown) => Object.assign(F, mergeFormulas(v));
 // DC box: qty = ⌈N / max⌉, lines = ⌈(N/qty)/step⌉ × step.

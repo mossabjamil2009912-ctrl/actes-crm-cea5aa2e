@@ -228,15 +228,20 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
         <Num label="سعة بطارية بايلونتك M5 (كيلووات ساعة)" value={fx.m5Kwh} onChange={(v) => up({ m5Kwh: v })} />
         <Num label="حد استخدام M1 (كيلووات ساعة)" value={fx.m1MaxKwh} onChange={(v) => up({ m1MaxKwh: v })} />
       </Eq>}
-      {hv && <Eq n={++n + 1} title="صنف وحدة التحكم BCU">
-        <L><Ln l={<>عدد <V>BCU</V></>}><Ceil><Fr n="عدد البطاريات" d={<R>أقصى بطاريات لكل <V>BCU</V></R>} /></Ceil></Ln></L>
+      {hv && <Eq n={++n + 1} title="صنف كنترول الهاي فولتج BCU">
+        <L>
+          <Ln l={<>عدد <V>BCU</V></>}><Ceil><Fr n="عدد البطاريات" d={<R>بطاريات كل كنترول</R>} /></Ceil></Ln>
+          <Nt>كل كنترول يأخذ حتى <V>{fx.hvBatPerBcu}</V> بطارية، والباقي يروح للكنترول الأخير</Nt>
+        </L>
         <Num label="أقصى بطاريات لكل كنترول BCU" value={fx.hvBatPerBcu} onChange={(v) => up({ hvBatPerBcu: Math.round(v) })} />
       </Eq>}
-      {hv && <Eq n={++n + 1} title="صنف صندوق تجميع البطاريات EBC">
+      {hv && <Eq n={++n + 1} title="صنف كنترول الربط الإضافي EBC">
         <L>
-          <Ln l={<>عدد <V>EBC</V></>}><V>1</V></Ln>
-          <Nt>يُضاف فقط عندما: عدد البطاريات ≥ <V>{2 * fx.hvMinBat}</V> (ضعف أقل عدد)</Nt>
+          <Ln l="بطاريات الكنترول الأخير">عدد البطاريات<O c="−" /><P>عدد <V>BCU</V><O c="−" /><V>1</V></P><O c="×" />بطاريات كل كنترول</Ln>
+          <Ln l={<>عدد <V>EBC</V></>}>عدد الكنترولات التي فيها أكثر من <V>{fx.ebcOver}</V> بطاريات</Ln>
+          <Nt>مثال: 22 بطارية ← كنترول فيه 15 (يأخذ EBC) + كنترول فيه 7 (بدون EBC) = 2 BCU و 1 EBC</Nt>
         </L>
+        <Num label="يحتاج EBC إذا زادت بطاريات الكنترول عن" value={fx.ebcOver} onChange={(v) => up({ ebcOver: Math.round(v) })} />
       </Eq>}
       {hv && <Eq n={++n + 1} title="صنف قاطع حماية البطاريات">
         <L><Ln l="عدد القواطع">عدد وحدات <V>BCU</V></Ln></L>

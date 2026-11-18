@@ -9,6 +9,10 @@ describe("High Voltage equations", () => {
   it("HV max per string at 1000V = 18", () => expect(maxPerString("hv", D)).toBe(18));
   it("4 batteries → 1 BCU, no EBC, 1 protection", () => expect(hvAccessories(4, D)).toEqual({ bat: 4, bcu: 1, ebc: 0, bdc: 1 }));
   it("24 batteries → 2 BCU, 2 EBC", () => expect(hvAccessories(24, D)).toEqual({ bat: 24, bcu: 2, ebc: 2, bdc: 2 }));
+  it("22 batteries → 2 BCU (15+7), 1 EBC", () => expect(hvAccessories(22, D)).toEqual({ bat: 22, bcu: 2, ebc: 1, bdc: 2 }));
+  it("15 batteries → 1 BCU, 1 EBC", () => expect(hvAccessories(15, D)).toEqual({ bat: 15, bcu: 1, ebc: 1, bdc: 1 }));
+  it("16 batteries → 2 BCU (15+1), 1 EBC", () => expect(hvAccessories(16, D)).toEqual({ bat: 16, bcu: 2, ebc: 1, bdc: 2 }));
+  it("7 batteries → no EBC", () => expect(hvAccessories(7, D).ebc).toBe(0));
   it("6 batteries stay 6 (min 4)", () => expect(hvAccessories(6, D).bat).toBe(6));
   it("2 batteries raise to 4", () => expect(hvAccessories(2, D).bat).toBe(4));
   it("HV quote adds BCU + EBC and 18-panel strings", () => {
