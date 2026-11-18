@@ -9,7 +9,7 @@ import { offlineQuery } from "@/lib/offline-cache";
 import { BOT_PRESETS } from "@/lib/bot-presets";
 import { F, applyFormulas, comKey } from "@/lib/formulas";
 import { inverterOptions, inverterForLoad, buildSystem, type InvPick } from "@/lib/sizing";
-import { applyStorage, hvCapacity, STORAGE_LABELS, type StorageChoice } from "@/lib/storage";
+import { applyStorage, hvCapacity, storageAvailable, STORAGE_LABELS, type StorageChoice } from "@/lib/storage";
 import logoClean from "@/assets/actes-logo-clean.png";
 
 type Row = Awaited<ReturnType<typeof listCatalog>>[number];
@@ -718,7 +718,7 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
           <div className="rounded-xl border border-primary/30 bg-card p-2">
             <div className="mb-1 text-xs font-bold">اختر نظام تخزين الطاقة:</div>
             <div className="flex flex-wrap gap-1">
-              {(Object.keys(STORAGE_LABELS) as StorageChoice[]).map((c) => (
+              {(Object.keys(STORAGE_LABELS) as StorageChoice[]).filter((c) => storageAvailable(c, hvCapacity(hvBase, items as EqItem[]))).map((c) => (
                 <button key={c} type="button" onClick={() => pickStorage(c)} aria-pressed={storage === c} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${storage === c ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{storage === c ? "✓ " : ""}{STORAGE_LABELS[c]}</button>
               ))}
             </div>
