@@ -1,1 +1,1 @@
-- LV battery brand choice: `lv-battery.ts` ↔ bot `ACTES_LVBAT` — change together.
+- LV battery brand choice: `lv-battery.ts` ↔ bot `ACTES_LVBAT` (16 kWh, sized systems) and `ACTES_RESBAT` (5.12 kWh, ready-made home systems) — change together.
