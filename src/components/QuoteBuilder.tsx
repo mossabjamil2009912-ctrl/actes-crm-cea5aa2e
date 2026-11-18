@@ -9,6 +9,7 @@ import { offlineQuery } from "@/lib/offline-cache";
 import { BOT_PRESETS } from "@/lib/bot-presets";
 import { F, applyFormulas, comKey } from "@/lib/formulas";
 import { inverterOptions, inverterForLoad, buildSystem, type InvPick } from "@/lib/sizing";
+import { lvChoices, lvCatalogItem, lvBatOf, LV_BAT_LABELS, type LvBatOpt } from "@/lib/lv-battery";
 import { applyStorage, hvCapacity, storageAvailable, STORAGE_LABELS, type StorageChoice } from "@/lib/storage";
 import logoClean from "@/assets/actes-logo-clean.png";
 
@@ -631,6 +632,12 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
     const next = applyStorage(hvBase, c, items as EqItem[], F, nightNeed ?? undefined);
     setStorage(c); setLines(Object.fromEntries(next.map((l) => [l.key, l]))); void generate(next);
   };
+  const lvBat = lvChoices(Object.values(lines), items);
+  const pickLvBat = (o: LvBatOpt) => {
+    const r = lvCatalogItem(o, items); if (!r) return;
+    const next = Object.values(lines).map((l) => lvBatOf(l.key, l.name) ? { ...l, key: r.key, name: r.name, unit: r.unit ?? l.unit, price: Number(r.price ?? 0), specs: specsOf(r) } : l);
+    setLines(Object.fromEntries(next.map((l) => [l.key, l]))); void generate(next);
+  };
   const loadQuote = (qt: (typeof quotes)[number]) => {
     // Saved quotes keep their items as they were: auto lines become ordinary lines.
     const its = ((qt.items as unknown as Line[]) ?? []).map((l) => ({ ...l, auto: false }));
@@ -713,6 +720,16 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
               {([["low", "أقل استقلالية"], ["rec", "موصى به"], ["high", "أكثر استقلالية"]] as const).map(([k, label]) => { const p = tiers[k]; return p ? (
                 <button key={k} type="button" onClick={() => { setTiers(null); loadPreset(p); }} className={`rounded-lg border px-2 py-1.5 text-right text-xs hover:bg-muted ${k === "rec" ? "border-primary bg-primary/10" : "bg-card"}`}><div className="font-bold">{label}</div><div className="text-muted-foreground">{p.title}</div></button>
               ) : null; })}
+            </div>
+          </div>
+        )}
+        {lvBat && (
+          <div className="rounded-xl border border-primary/30 bg-card p-2">
+            <div className="mb-1 text-xs font-bold">اختر نوع البطارية:</div>
+            <div className="flex flex-wrap gap-1">
+              {lvBat.opts.map((o) => (
+                <button key={o} type="button" onClick={() => pickLvBat(o)} aria-pressed={lvBat.current === o} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${lvBat.current === o ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{lvBat.current === o ? "✓ " : ""}{LV_BAT_LABELS[o]}</button>
+              ))}
             </div>
           </div>
         )}
