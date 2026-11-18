@@ -90,6 +90,8 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
   const [f, setF] = useState<Formulas | null>(null);
   const [kwh, setKwh] = useState(290);
   const [tab, setTab] = useState<"res" | "com">("com");
+  // What is shown for editing only; the active system is chosen in «النظام الحسابي».
+  const [view, setView] = useState<"eq" | "ranges">("eq");
   const [resSub, setResSub] = useState<"small" | "big">("small");
   const [comSub, setComSub] = useState<"lv" | "hv">("lv");
   const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
@@ -107,7 +109,9 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
     if (!f) return;
     setBusy(true); setMsg(null);
     try {
-      const r = await save({ data: { pw, code, formulas: f as unknown as Record<string, unknown> } });
+      // Keep the active system as stored: only «النظام الحسابي» may change it.
+      const cur = await get({ data: { pw } });
+      const r = await save({ data: { pw, code, formulas: { ...f, mode: cur.formulas.mode } as unknown as Record<string, unknown> } });
       await saveK({ data: { pw, price: kwh } });
       applyFormulas(r.formulas);
       await qc.invalidateQueries({ queryKey: ["formulas"] }); await qc.invalidateQueries({ queryKey: ["kwh_price"] });
@@ -281,22 +285,18 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
     <div dir="rtl" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-2" onClick={onClose}>
       <div className="flex max-h-[92vh] w-full max-w-lg flex-col gap-2 rounded-xl border border-border bg-card p-3 text-card-foreground shadow-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between"><h2 className="font-bold">المعادلات</h2><button onClick={onClose} aria-label="إغلاق"><X className="h-4 w-4" /></button></div>
-        {f && <div className="space-y-1 rounded-lg border border-primary/30 p-2 text-[11px]">
-          <div className="font-bold">طريقة حساب المنظومات (التطبيق والبوت)</div>
-          <div className="grid grid-cols-2 gap-1 font-semibold">
-            {([["eq", "عبر المعادلات"], ["ranges", "عبر النطاقات الجاهزة"]] as const).map(([k, l]) => (
-              <button key={k} onClick={() => up({ mode: k })} aria-pressed={f.mode === k} className={`rounded-lg px-1 py-1.5 ${f.mode === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{f.mode === k ? "✓ " : ""}{l}</button>
-            ))}
-          </div>
-          <p className="text-muted-foreground">المعتمد في التطبيق والبوت هو الخيار الذي عليه ✓ بعد الحفظ. تعديلات النطاقات والأصناف تُحفظ ولا تُعتمد إلا عند وضع ✓ على النطاقات.</p>
-        </div>}
+        <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
+          {([["eq", "تعديل المعادلات"], ["ranges", "تعديل النطاقات"]] as const).map(([k, l]) => (
+            <button key={k} onClick={() => setView(k)} className={`rounded-lg px-1 py-1.5 ${view === k ? "bg-ink text-ink-foreground" : "bg-muted"}`}>{l}</button>
+          ))}
+        </div>
         <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
           {([["res", "معادلات النظام السكني"], ["com", "معادلات النظام التجاري"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setTab(k)} className={`rounded-lg px-1 py-1.5 ${tab === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{l}</button>
           ))}
         </div>
         <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
-          {!f ? <p className="text-xs text-muted-foreground">جاري التحميل…</p> : f.mode === "ranges" ? (
+          {!f ? <p className="text-xs text-muted-foreground">جاري التحميل…</p> : view === "ranges" ? (
             tab === "res" ? (
               <div className="space-y-2">
                 <p className="text-[11px] text-muted-foreground">نطاق كل منظومة = الاستهلاك اليومي (كيلووات ساعة / يوم). يُختار أقرب نطاق للعميل.</p>

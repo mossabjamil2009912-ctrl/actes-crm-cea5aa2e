@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FormulasDialog } from "@/components/FormulasDialog";
 import { Settings, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { SystemModeDialog } from "@/components/SystemModeDialog";
 import { AppUpdatePanel } from "@/components/AppUpdatePanel";
 import { getFrontendUrl, saveFrontendUrl, testFrontendUrl } from "@/lib/crm.functions";
 
@@ -13,6 +14,7 @@ export function ConnectionSettings({ pw }: { pw: string }) {
   const [askCode, setAskCode] = useState(false);
   const [code, setCode] = useState("");
   const [unlocked, setUnlocked] = useState(false);
+  const [showM, setShowM] = useState(false);
   const [showF, setShowF] = useState(false);
   const startHold = () => { held.current = false; holdT.current = setTimeout(() => { held.current = true; setCode(""); setAskCode(true); }, 3000); };
   const endHold = () => { if (holdT.current) clearTimeout(holdT.current); holdT.current = null; };
@@ -48,6 +50,10 @@ export function ConnectionSettings({ pw }: { pw: string }) {
       {unlocked && (
         <button onClick={() => setShowF(true)} className="rounded-md bg-primary px-2 py-1 text-[10px] font-bold text-primary-foreground">المعادلات</button>
       )}
+      {unlocked && (
+        <button onClick={() => setShowM(true)} className="rounded-md bg-primary px-2 py-1 text-[10px] font-bold text-primary-foreground">النظام الحسابي</button>
+      )}
+      {showM && <SystemModeDialog pw={pw} code={code} onClose={() => setShowM(false)} />}
       {askCode && (
         <div dir="rtl" className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-4" onClick={() => setAskCode(false)}>
           <form className="w-full max-w-xs space-y-2 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-lg" onClick={(e) => e.stopPropagation()}
