@@ -21,7 +21,8 @@ export type Formulas = {
   hvMinBat: number;      // HV batteries come in steps of this many (min series)
   hvBatPerBcu: number;   // HV batteries per BCU controller
   panelW: number;        // panel watts used for panel count
-  dcRatio: number;       // panel kWp per inverter kW (DC/AC ratio)
+  dcRatio: number;       // panel kWp per inverter kW (DC/AC ratio) — Deye and other brands
+  dcRatioSolis: number;  // DC/AC ratio for Solis inverters
   lvMaxKw: number;       // above this AC power → High Voltage family
   maxInverters: number;  // most inverters in parallel
   batKwh: number;        // battery size (kWh) for battery count
@@ -42,7 +43,7 @@ export const DEFAULT_FORMULAS: Formulas = {
   dcMaxLines: 10, dcStep: 2, acSingleV: 220, acThreeDiv: 658, acSafety: 1.25, cableM: 1, mc4PerString: 1,
   panelVoc: 48.5, coldFactor: 1.1, vmaxSingle: 500, vmaxThree: 800,
   vmaxHV: 1000, hvMinBat: 4, hvBatPerBcu: 12,
-  panelW: 720, dcRatio: 1.3, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, cabKwh: 112, m1Kwh: 4.74, m5Kwh: 15.68, m1MaxKwh: 109.02, mode: "eq", comRanges: {}, presetItems: {},
+  panelW: 720, dcRatio: 1.3, dcRatioSolis: 1.6, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, cabKwh: 112, m1Kwh: 4.74, m5Kwh: 15.68, m1MaxKwh: 109.02, mode: "eq", comRanges: {}, presetItems: {},
 };
 export const F: Formulas = structuredClone(DEFAULT_FORMULAS);
 export const mergeFormulas = (v: unknown): Formulas => {
@@ -57,7 +58,7 @@ export const mergeFormulas = (v: unknown): Formulas => {
     acThreeDiv: num(o.acThreeDiv, D.acThreeDiv), acSafety: num(o.acSafety, D.acSafety), cableM: num(o.cableM, D.cableM), mc4PerString: num(o.mc4PerString, D.mc4PerString), 
     panelVoc: num(o.panelVoc, D.panelVoc), coldFactor: num(o.coldFactor, D.coldFactor), vmaxSingle: num(o.vmaxSingle, D.vmaxSingle), vmaxThree: num(o.vmaxThree, D.vmaxThree),
     vmaxHV: num(o.vmaxHV, D.vmaxHV), hvMinBat: num(o.hvMinBat, D.hvMinBat), hvBatPerBcu: num(o.hvBatPerBcu, D.hvBatPerBcu),
-    panelW: num(o.panelW, D.panelW), dcRatio: num(o.dcRatio, D.dcRatio), lvMaxKw: num(o.lvMaxKw, D.lvMaxKw), maxInverters: num(o.maxInverters, D.maxInverters), batKwh: num(o.batKwh, D.batKwh), batTol: typeof o.batTol === "number" && o.batTol >= 0 ? o.batTol : D.batTol,
+    panelW: num(o.panelW, D.panelW), dcRatio: num(o.dcRatio, D.dcRatio), dcRatioSolis: num(o.dcRatioSolis, D.dcRatioSolis), lvMaxKw: num(o.lvMaxKw, D.lvMaxKw), maxInverters: num(o.maxInverters, D.maxInverters), batKwh: num(o.batKwh, D.batKwh), batTol: typeof o.batTol === "number" && o.batTol >= 0 ? o.batTol : D.batTol,
     cabKwh: num(o.cabKwh, D.cabKwh), m1Kwh: num(o.m1Kwh, D.m1Kwh), m5Kwh: num(o.m5Kwh, D.m5Kwh), m1MaxKwh: num(o.m1MaxKwh, D.m1MaxKwh),
     mode: o.mode === "ranges" ? "ranges" : "eq",
     presetItems: Object.fromEntries(Object.entries(o.presetItems && typeof o.presetItems === "object" ? o.presetItems : {}).filter(([, l]) => Array.isArray(l) && l.length > 0 && l.every((x) => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "number" && x[1] > 0))) as Record<string, [string, number][]>,

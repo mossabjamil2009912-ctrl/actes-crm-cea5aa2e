@@ -20,7 +20,9 @@ export function inverterSpecs(items: EqItem[]): InvSpec[] {
 }
 // kWp = daily ÷ sun hours. Inverters needed = ⌈max(hourly load, kWp ÷ DC/AC ratio) ÷ kW⌉.
 export const kwpOf = (need: number, f: Formulas = F) => need / f.sun;
-export const unitsFor = (s: InvSpec, need: number, loadKw = 0, f: Formulas = F) => Math.max(1, Math.ceil(Math.max(loadKw, kwpOf(need, f) / f.dcRatio) / s.kw - 1e-9));
+// DC/AC ratio depends on the brand: Solis accepts more panels per kW than Deye.
+export const ratioOf = (s: Pick<InvSpec, "key">, f: Formulas = F) => (/SOLIS/i.test(s.key) ? f.dcRatioSolis : f.dcRatio);
+export const unitsFor = (s: InvSpec, need: number, loadKw = 0, f: Formulas = F) => Math.max(1, Math.ceil(Math.max(loadKw, kwpOf(need, f) / ratioOf(s, f)) / s.kw - 1e-9));
 // Low Voltage while the AC power needed stays within lvMaxKw; otherwise High Voltage. Never mixed.
 export const isHvNeed = (need: number, loadKw = 0, f: Formulas = F) => Math.max(loadKw, kwpOf(need, f) / f.dcRatio) > f.lvMaxKw + 1e-9;
 

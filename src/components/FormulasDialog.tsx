@@ -183,7 +183,8 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
           <Nt>{hv ? "يُستخدم الهاي فولتج عندما تتجاوز القدرة حد الجهد المنخفض" : "جهد منخفض ما دامت القدرة ≤ حد الجهد المنخفض"}</Nt>
           <Nt>يُختار الأرخص من الخيارات المناسبة</Nt>
         </L>
-        <Num label="نسبة الألواح إلى الإنفرتر" value={fx.dcRatio} onChange={(v) => up({ dcRatio: v })} />
+        <Num label="نسبة الألواح إلى الإنفرتر (دايا)" value={fx.dcRatio} onChange={(v) => up({ dcRatio: v })} />
+        <Num label="نسبة الألواح إلى الإنفرتر (سوليس)" value={fx.dcRatioSolis} onChange={(v) => up({ dcRatioSolis: v })} />
         <Num label="أقصى قدرة للجهد المنخفض (كيلو)" value={fx.lvMaxKw} onChange={(v) => up({ lvMaxKw: v })} />
         <Num label="أقصى عدد إنفرترات بالتوازي" value={fx.maxInverters} onChange={(v) => up({ maxInverters: Math.round(v) })} />
       </Eq>
