@@ -255,9 +255,10 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
           <div className="font-bold">طريقة حساب المنظومات (التطبيق والبوت)</div>
           <div className="grid grid-cols-2 gap-1 font-semibold">
             {([["eq", "عبر المعادلات"], ["ranges", "عبر النطاقات الجاهزة"]] as const).map(([k, l]) => (
-              <button key={k} onClick={() => up({ mode: k })} className={`rounded-lg px-1 py-1.5 ${f.mode === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{l}</button>
+              <button key={k} onClick={() => up({ mode: k })} aria-pressed={f.mode === k} className={`rounded-lg px-1 py-1.5 ${f.mode === k ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{f.mode === k ? "✓ " : ""}{l}</button>
             ))}
           </div>
+          <p className="text-muted-foreground">المعتمد في التطبيق والبوت هو الخيار الذي عليه ✓ بعد الحفظ. تعديلات النطاقات والأصناف تُحفظ ولا تُعتمد إلا عند وضع ✓ على النطاقات.</p>
         </div>}
         <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
           {([["res", "معادلات النظام السكني"], ["com", "معادلات النظام التجاري"]] as const).map(([k, l]) => (

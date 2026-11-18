@@ -602,7 +602,7 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
     loadPreset({ type: eq.type, group: `${p.kw} كيلو`, title: `${p.units > 1 ? `${p.units}× ` : ""}${p.kw} كيلو`, items: sys });
   };
   function loadPreset(p0: Preset) {
-    const ed = F.presetItems[p0.title];
+    const ed = F.mode === "ranges" ? F.presetItems[p0.title] : undefined; // edits apply only when ranges is the active (✓) system
     const p: Preset = ed ? (({ lines: _l, ...r }) => ({ ...r, items: ed }))(p0) : p0;
     // Like the bot: every linked line takes name, specs, unit and price live from the catalog.
     const out: Line[] = p.lines ? p.lines.map((l) => {
