@@ -27,6 +27,10 @@ export type Formulas = {
   batKwh: number;        // battery size (kWh) for battery count
   mode: "eq" | "ranges"; // 8–125 kW: sized by equations or by ready-made ranges (app + bot)
   batTol: number;        // night kWh shortfall accepted before adding a battery
+  cabKwh: number;        // Hithium 112C cabinet kWh
+  m1Kwh: number;         // Pylontech M1 battery kWh
+  m5Kwh: number;         // Pylontech M5 battery kWh
+  m1MaxKwh: number;      // up to this capacity Pylontech uses M1, above it M5
   presetItems: Record<string, [string, number][]>; // edited ready-made system items (catalog key, qty) by preset title; missing = original
   comRanges: Record<string, number>; // ranges mode: commercial system range (kWh/day) by comKey; missing = panels × W × sun
 };
@@ -38,7 +42,7 @@ export const DEFAULT_FORMULAS: Formulas = {
   dcMaxLines: 10, dcStep: 2, acSingleV: 220, acThreeDiv: 658, acSafety: 1.25, cableM: 1, mc4PerString: 1,
   panelVoc: 48.5, coldFactor: 1.1, vmaxSingle: 500, vmaxThree: 800,
   vmaxHV: 1000, hvMinBat: 4, hvBatPerBcu: 12,
-  panelW: 720, dcRatio: 1.3, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, mode: "eq", comRanges: {}, presetItems: {},
+  panelW: 720, dcRatio: 1.3, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, cabKwh: 112, m1Kwh: 4.74, m5Kwh: 15.68, m1MaxKwh: 109.02, mode: "eq", comRanges: {}, presetItems: {},
 };
 export const F: Formulas = structuredClone(DEFAULT_FORMULAS);
 export const mergeFormulas = (v: unknown): Formulas => {
@@ -54,6 +58,7 @@ export const mergeFormulas = (v: unknown): Formulas => {
     panelVoc: num(o.panelVoc, D.panelVoc), coldFactor: num(o.coldFactor, D.coldFactor), vmaxSingle: num(o.vmaxSingle, D.vmaxSingle), vmaxThree: num(o.vmaxThree, D.vmaxThree),
     vmaxHV: num(o.vmaxHV, D.vmaxHV), hvMinBat: num(o.hvMinBat, D.hvMinBat), hvBatPerBcu: num(o.hvBatPerBcu, D.hvBatPerBcu),
     panelW: num(o.panelW, D.panelW), dcRatio: num(o.dcRatio, D.dcRatio), lvMaxKw: num(o.lvMaxKw, D.lvMaxKw), maxInverters: num(o.maxInverters, D.maxInverters), batKwh: num(o.batKwh, D.batKwh), batTol: typeof o.batTol === "number" && o.batTol >= 0 ? o.batTol : D.batTol,
+    cabKwh: num(o.cabKwh, D.cabKwh), m1Kwh: num(o.m1Kwh, D.m1Kwh), m5Kwh: num(o.m5Kwh, D.m5Kwh), m1MaxKwh: num(o.m1MaxKwh, D.m1MaxKwh),
     mode: o.mode === "ranges" ? "ranges" : "eq",
     presetItems: Object.fromEntries(Object.entries(o.presetItems && typeof o.presetItems === "object" ? o.presetItems : {}).filter(([, l]) => Array.isArray(l) && l.length > 0 && l.every((x) => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "number" && x[1] > 0))) as Record<string, [string, number][]>,
     comRanges: Object.fromEntries(Object.entries(o.comRanges && typeof o.comRanges === "object" ? o.comRanges : {}).filter(([, x]) => typeof x === "number" && isFinite(x) && x > 0)),

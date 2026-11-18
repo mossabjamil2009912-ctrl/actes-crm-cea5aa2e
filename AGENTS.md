@@ -57,3 +57,4 @@ use the editor.
 - `formulas.mode` (eq|ranges) switches 8–125 kW sizing (QuoteBuilder + bot `szStart`); ranges-mode `comRanges` (kW-phase-panels) override `dailyProduction`, bot port `ACTES_COM_RANGES` — change together.
 - `orders_legacy`: unused old orders table, kept for its rows.
 - `formulas.presetItems` (title → [key, qty]) overrides preset items in `loadPreset` — one stored edit, originals in code.
+- HV storage choice (Hithium 112S racks / Pylontech M1-M5 racks / 112C-261-313 cabinets) is computed by `src/lib/storage.ts` and its bot port `ACTES_STORAGE_*` (asked at `com_storage_ask` after equation sizing) — change both together so app and bot quotes match.

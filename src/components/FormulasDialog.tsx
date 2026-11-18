@@ -203,6 +203,23 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
         <Num label="سماحية نقص الليل (كيلووات ساعة)" value={fx.batTol} onChange={(v) => up({ batTol: v })} />
         {hv && <Num label="أقل عدد بطاريات هاي فولتج" value={fx.hvMinBat} onChange={(v) => up({ hvMinBat: Math.round(v) })} />}
       </Eq>
+      {hv && <Eq n={++n + 1} title="نظام التخزين (سؤال العميل)">
+        <L>
+          <Ln l="السعة">عدد بطاريات الهاي فولتج<O c="×" />سعة البطارية</Ln>
+          <Nt>راكات Hithium 112S = البطاريات والكنترولات المحسوبة أعلاه كما هي</Nt>
+          <Ln l="كبائن Hithium 112C"><Ceil><Fr n="السعة" d="سعة الكبينة" /></Ceil></Ln>
+          <Ln l="كبائن Pylontech"><Ceil><Fr n="السعة" d={<R><V>261</V> أو <V>313</V></R>} /></Ceil></Ln>
+          <Ln l="بايلونتك M1">الأكبر من<P><V>6</V><O c="،" /><Ceil><Fr n="السعة" d="سعة M1" /></Ceil></P></Ln>
+          <Nt>M1 عندما السعة ≤ حد M1 · راك 13 حتى 13 بطارية وإلا راك 23 · كنترول وطقم واحد</Nt>
+          <Ln l="بايلونتك M5">الأكبر من<P><V>7</V><O c="،" /><Ceil><Fr n="السعة" d="سعة M5" /></Ceil></P></Ln>
+          <Ln l="راكات M5"><Ceil><Fr n="بطاريات M5" d={<V>20</V>} /></Ceil></Ln>
+          <Nt>راك 11 أو 16 أو 20 حسب البطاريات في كل راك · كنترول وطقم لكل راك</Nt>
+        </L>
+        <Num label="سعة كبينة Hithium 112C (كيلووات ساعة)" value={fx.cabKwh} onChange={(v) => up({ cabKwh: v })} />
+        <Num label="سعة بطارية بايلونتك M1 (كيلووات ساعة)" value={fx.m1Kwh} onChange={(v) => up({ m1Kwh: v })} />
+        <Num label="سعة بطارية بايلونتك M5 (كيلووات ساعة)" value={fx.m5Kwh} onChange={(v) => up({ m5Kwh: v })} />
+        <Num label="حد استخدام M1 (كيلووات ساعة)" value={fx.m1MaxKwh} onChange={(v) => up({ m1MaxKwh: v })} />
+      </Eq>}
       {hv && <Eq n={++n + 1} title="صنف وحدة التحكم BCU">
         <L><Ln l={<>عدد <V>BCU</V></>}><Ceil><Fr n="عدد البطاريات" d={<R>أقصى بطاريات لكل <V>BCU</V></R>} /></Ceil></Ln></L>
         <Num label="أقصى بطاريات لكل كنترول BCU" value={fx.hvBatPerBcu} onChange={(v) => up({ hvBatPerBcu: Math.round(v) })} />

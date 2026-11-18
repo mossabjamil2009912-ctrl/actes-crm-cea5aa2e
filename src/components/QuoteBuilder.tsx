@@ -9,6 +9,7 @@ import { offlineQuery } from "@/lib/offline-cache";
 import { BOT_PRESETS } from "@/lib/bot-presets";
 import { F, applyFormulas, comKey } from "@/lib/formulas";
 import { inverterOptions, inverterForLoad, buildSystem, type InvPick } from "@/lib/sizing";
+import { applyStorage, hvCapacity, STORAGE_LABELS, type StorageChoice } from "@/lib/storage";
 import logoClean from "@/assets/actes-logo-clean.png";
 
 type Row = Awaited<ReturnType<typeof listCatalog>>[number];
@@ -427,6 +428,8 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
   const [invKw, setInvKw] = useState<InvChoice | null>(null);
   const [eq, setEq] = useState<{ need: number; three: boolean; template: [string, number][]; type: "res" | "com" } | null>(null);
   const [loadKw, setLoadKw] = useState("");
+  const [hvBase, setHvBase] = useState<Line[] | null>(null); // HV system before the storage choice
+  const [storage, setStorage] = useState<StorageChoice>("h112s");
   const getKwh = useServerFn(getKwhPrice);
   const saveKwh = useServerFn(setKwhPrice);
   const { data: kwhData, refetch: refetchKwh } = useQuery(offlineQuery({ queryKey: ["kwh_price"], queryFn: () => getKwh({ data: { pw } }) }));
@@ -616,10 +619,16 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
     if (!out.length) return setMsg("أصناف هذه المنظومة غير متوفرة في قائمة الأصناف");
     const t = p.type ?? "res", full = withAuto(applyEquations(out, items as EqItem[], catalogKeyFor), t, new Set());
     setQuoteType(t); setDismissed(new Set());
+    setHvBase(hvCapacity(full, items as EqItem[]) > 0 ? full : null); setStorage("h112s");
     setLines(Object.fromEntries(full.map((l) => [l.key, l])));
     setShowHist(false);
     void generate(full);
   }
+  const pickStorage = (c: StorageChoice) => {
+    if (!hvBase) return;
+    const next = applyStorage(hvBase, c, items as EqItem[]);
+    setStorage(c); setLines(Object.fromEntries(next.map((l) => [l.key, l]))); void generate(next);
+  };
   const loadQuote = (qt: (typeof quotes)[number]) => {
     // Saved quotes keep their items as they were: auto lines become ordinary lines.
     const its = ((qt.items as unknown as Line[]) ?? []).map((l) => ({ ...l, auto: false }));
@@ -702,6 +711,16 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
               {([["low", "أقل استقلالية"], ["rec", "موصى به"], ["high", "أكثر استقلالية"]] as const).map(([k, label]) => { const p = tiers[k]; return p ? (
                 <button key={k} type="button" onClick={() => { setTiers(null); loadPreset(p); }} className={`rounded-lg border px-2 py-1.5 text-right text-xs hover:bg-muted ${k === "rec" ? "border-primary bg-primary/10" : "bg-card"}`}><div className="font-bold">{label}</div><div className="text-muted-foreground">{p.title}</div></button>
               ) : null; })}
+            </div>
+          </div>
+        )}
+        {hvBase && (
+          <div className="rounded-xl border border-primary/30 bg-card p-2">
+            <div className="mb-1 text-xs font-bold">اختر نظام تخزين الطاقة:</div>
+            <div className="flex flex-wrap gap-1">
+              {(Object.keys(STORAGE_LABELS) as StorageChoice[]).map((c) => (
+                <button key={c} type="button" onClick={() => pickStorage(c)} aria-pressed={storage === c} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${storage === c ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{storage === c ? "✓ " : ""}{STORAGE_LABELS[c]}</button>
+              ))}
             </div>
           </div>
         )}
