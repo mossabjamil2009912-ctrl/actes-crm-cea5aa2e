@@ -1,10 +1,10 @@
-// Full equation sizing for 8–20 kW (Low Voltage) and 50/80/125 kW (High Voltage) systems.
+// Full equation sizing for 8–20 kW (Low Voltage) and 30/50/80/125 kW (High Voltage) systems.
 // Panels, inverter count and batteries come only from the equations + CRM catalog (no fixed presets).
 import { F, maxPerString, stringCount, type Formulas, type EqItem } from "@/lib/formulas";
 
 export type InvSpec = { key: string; name: string; kw: number; hv: boolean; three: boolean; price: number };
 export type InvPick = InvSpec & { units: number; cost: number };
-const LV_KW = [8, 12, 16, 20], HV_KW = [50, 80, 125];
+const LV_KW = [8, 12, 16, 20], HV_KW = [30, 50, 80, 125];
 
 // Inverters in the catalog (cheapest per size + phase), parsed from the key: INV_*_<kw>K_<1P|3P>[_HV].
 export function inverterSpecs(items: EqItem[]): InvSpec[] {

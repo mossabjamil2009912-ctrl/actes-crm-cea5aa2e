@@ -349,7 +349,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-1 text-[11px] font-semibold">
                 <button onClick={() => setComSub("lv")} className={`rounded-lg px-1 py-1.5 ${comSub === "lv" ? "bg-ink text-ink-foreground" : "bg-muted"}`}>Low Voltage (8–20)</button>
-                <button onClick={() => setComSub("hv")} className={`rounded-lg px-1 py-1.5 ${comSub === "hv" ? "bg-ink text-ink-foreground" : "bg-muted"}`}>High Voltage (50/80/125)</button>
+                <button onClick={() => setComSub("hv")} className={`rounded-lg px-1 py-1.5 ${comSub === "hv" ? "bg-ink text-ink-foreground" : "bg-muted"}`}>High Voltage (30/50/80/125)</button>
               </div>
               {comSub === "lv" && items(f, false)}
               {comSub === "hv" && items(f, true)}

@@ -20,3 +20,9 @@ describe("equation sizing", () => {
   it("LV batteries are multiples of 16 kWh", () => expect(batteriesFor(60, 50, false, D)).toBe(3));
   it("panels split evenly over strings", () => { const r = panelsFor(100, { ...items[2]!, kw: 16, hv: false, three: true, units: 1, cost: 0 } as never, D); expect(r.panels % r.strings).toBe(0); });
 });
+describe("Deye 30 HV", () => {
+  it("30 kW HV is offered for HV needs", () => {
+    const it2 = [...items, inv("INV_DEYE_30K_3P_HV", 2800)];
+    expect(inverterOptions(it2, 300, true, D).some((p) => p.kw === 30 && p.hv)).toBe(true);
+  });
+});
