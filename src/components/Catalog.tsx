@@ -44,6 +44,14 @@ function sectionOf(r: Row): string {
   }
   return r.category;
 }
+// High/Low Voltage sub-folder inside each brand (inverters and batteries only).
+const VOLT_SECTIONS = ["inverters", "batteries"];
+export function voltOf(r: { key: string; name: string; label?: string | null }): "High Voltage" | "Low Voltage" {
+  const t = (r.key + " " + r.name + " " + (r.label ?? "")).toUpperCase();
+  // Inverters of 25 kW and above (Deye 30/50/80, Solis 29.9–125) all use high-voltage batteries.
+  if (/INV|إنفرتر|انفرتر/.test(t) && Number((t.match(/(\d+(?:\.\d+)?)\s*(?:K_|كيلو)/) ?? [])[1] ?? 0) >= 25) return "High Voltage";
+  return /_HV\b|_HV$|\bHV\b|جهد عالي|هاي فولت|PYLON_M[15]|M1C|M5A|\bM[15]\b|112S/.test(t) ? "High Voltage" : "Low Voltage";
+}
 const brandRank = (b: string) => { const i = BRAND_ORDER.indexOf(b); return i < 0 ? 99 : i; };
 
 function Folder({ title, count, open, onToggle, level, children }: { title: string; count: number; open: boolean; onToggle: () => void; level: number; children: React.ReactNode }) {
@@ -170,7 +178,14 @@ export function Catalog({ pw }: { pw: string }) {
                     const bid = id + ":" + b;
                     return (
                       <Folder key={bid} title={b || "أخرى"} count={br.length} open={isOpen(bid)} onToggle={() => toggle(bid)} level={1}>
-                        {br.length ? br.map(card) : <p className="py-3 text-center text-xs text-muted-foreground">لا توجد أصناف</p>}
+                        {!br.length ? <p className="py-3 text-center text-xs text-muted-foreground">لا توجد أصناف</p>
+                          : !VOLT_SECTIONS.includes(g.id) ? br.map(card)
+                          : (["High Voltage", "Low Voltage"] as const).map((v) => {
+                              const vr = br.filter((r) => voltOf(r) === v);
+                              if (!vr.length) return null;
+                              const vid = bid + ":" + v;
+                              return <Folder key={vid} title={v} count={vr.length} open={isOpen(vid)} onToggle={() => toggle(vid)} level={1}>{vr.map(card)}</Folder>;
+                            })}
                       </Folder>
                     );
                   })}
