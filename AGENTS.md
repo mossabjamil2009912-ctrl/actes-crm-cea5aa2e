@@ -56,3 +56,4 @@ use the editor.
 - 8–125 kW quotes are sized by `src/lib/sizing.ts` (presets = accessory templates; HV uses `vmaxHV` + `hvAccessories`); bot ports `ACTES_SIZING`/`ACTES_EQUATIONS` — change together.
 - `formulas.mode` (eq|ranges) switches 8–125 kW sizing (QuoteBuilder + bot `szStart`); ranges-mode `comRanges` (kW-phase-panels) override `dailyProduction`, bot port `ACTES_COM_RANGES` — change together.
 - `orders_legacy`: unused old orders table, kept for its rows.
+- `formulas.presetItems` (title → [key, qty]) overrides preset items in `loadPreset` — one stored edit, originals in code.

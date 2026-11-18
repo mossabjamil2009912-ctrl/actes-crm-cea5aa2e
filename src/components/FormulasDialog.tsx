@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQueryClient } from "@tanstack/react-query";
-import { getFormulas, saveFormulas, getKwhPrice, setKwhPrice } from "@/lib/crm.functions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getFormulas, saveFormulas, getKwhPrice, setKwhPrice, listCatalog } from "@/lib/crm.functions";
+import { offlineQuery } from "@/lib/offline-cache";
 import { DEFAULT_FORMULAS, applyFormulas, type Formulas } from "@/lib/formulas";
 import { BOT_PRESETS } from "@/lib/bot-presets";
-import { PRESETS, comKeyOf, panelsOf } from "@/components/QuoteBuilder";
+import { PRESETS, comKeyOf, panelsOf, defaultPresetItems } from "@/components/QuoteBuilder";
 
 const RES = BOT_PRESETS.filter((p) => p.type !== "com");
 const COM = PRESETS.filter((p) => p.type === "com");
@@ -23,6 +24,54 @@ function Num({ label, value, onChange, hint }: { label: string; value: number; o
       <input value={t} inputMode="decimal" onChange={(e) => { const s = e.target.value.replace(/[^\d.]/g, ""); setT(s); const n = Number(s); if (n > 0) onChange(n); }}
         className="w-20 shrink-0 rounded-md border border-border bg-card px-2 py-1 text-center font-bold" />
     </label>
+  );
+}
+
+type Cat = { key: string; name: string; category: string; price: number | string | null };
+const CAT_AR: Record<string, string> = { inverters: "الإنفرترات", panels: "الألواح", batteries: "البطاريات" };
+
+// Items of one ready-made system: tap an item to swap it for another of the same category, change its count, delete or add.
+function PresetItems({ title, base, value, cat, onChange }: { title: string; base: [string, number][]; value?: [string, number][] | undefined; cat: Cat[]; onChange: (v: [string, number][] | null) => void }) {
+  const [open, setOpen] = useState(false);
+  const [swap, setSwap] = useState<number | null>(null);
+  const [add, setAdd] = useState(false);
+  const list = value ?? base;
+  const nameOf = (k: string) => cat.find((c) => c.key === k)?.name ?? k;
+  const set = (l: [string, number][]) => onChange(l.length ? l : null);
+  return (
+    <div className="rounded-lg border border-border bg-background">
+      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between gap-2 px-2 py-1.5 text-right text-[11px]">
+        <span className="min-w-0 font-semibold">{bidi(title)}</span>
+        <span className={`shrink-0 rounded px-1.5 ${value ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{value ? "أصناف معدّلة" : "الأصناف"} {open ? "▲" : "▼"}</span>
+      </button>
+      {open && <div className="space-y-1 border-t border-border p-1.5">
+        {list.map(([k, q], i) => {
+          const c = cat.find((x) => x.key === k);
+          return (
+            <div key={i} className="space-y-1 rounded-md bg-muted/50 p-1">
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={() => setSwap(swap === i ? null : i)} className="min-w-0 flex-1 text-right text-[11px] underline decoration-dotted">{bidi(nameOf(k))}</button>
+                <input inputMode="numeric" defaultValue={q} key={k + q} onBlur={(e) => { const n = Number(e.target.value); if (n > 0 && n !== q) set(list.map((x, j) => (j === i ? [x[0], n] : x))); }} className="w-14 rounded-md border border-border bg-card px-1 py-0.5 text-center text-xs font-bold" aria-label="العدد" />
+                <button type="button" onClick={() => set(list.filter((_, j) => j !== i))} aria-label="حذف" className="px-1 text-destructive"><X className="h-3.5 w-3.5" /></button>
+              </div>
+              {swap === i && <div className="max-h-48 space-y-0.5 overflow-y-auto rounded border border-border bg-card p-1">
+                <div className="text-[10px] text-muted-foreground">{c ? `اختر بديلاً من ${CAT_AR[c.category] ?? c.category}` : "اختر صنفاً"}</div>
+                {cat.filter((x) => !c || x.category === c.category).map((x) => (
+                  <button type="button" key={x.key} onClick={() => { set(list.map((y, j) => (j === i ? [x.key, y[1]] : y))); setSwap(null); }} className={`block w-full rounded px-1 py-1 text-right text-[11px] hover:bg-muted ${x.key === k ? "bg-primary/10 font-bold" : ""}`}>{bidi(x.name)} {x.price != null && <span className="text-muted-foreground">· {Number(x.price)}$</span>}</button>
+                ))}
+              </div>}
+            </div>
+          );
+        })}
+        {add ? <select autoFocus defaultValue="" onChange={(e) => { if (e.target.value) set([...list, [e.target.value, 1]]); setAdd(false); }} className="w-full rounded-md border border-border bg-card p-1 text-[11px]">
+          <option value="">اختر صنفاً لإضافته…</option>
+          {[...new Set(cat.map((c) => c.category))].map((g) => <optgroup key={g} label={CAT_AR[g] ?? g}>{cat.filter((c) => c.category === g).map((c) => <option key={c.key} value={c.key}>{c.name}</option>)}</optgroup>)}
+        </select> : <div className="grid grid-cols-2 gap-1">
+          <button type="button" onClick={() => setAdd(true)} className="rounded-md border border-border px-1 py-1 text-[11px]">+ إضافة صنف</button>
+          <button type="button" disabled={!value} onClick={() => onChange(null)} className="rounded-md border border-border px-1 py-1 text-[11px] disabled:opacity-40">استعادة الأصناف الأصلية</button>
+        </div>}
+      </div>}
+    </div>
   );
 }
 
@@ -46,6 +95,11 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
   const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => { get({ data: { pw } }).then((r) => setF(r.formulas)).catch((e) => setMsg({ ok: false, t: e.message })); getK({ data: { pw } }).then((r) => setKwh(r.kwh_price)).catch(() => {}); }, []);
+  const listC = useServerFn(listCatalog);
+  const { data: rows = [] } = useQuery(offlineQuery({ queryKey: ["catalog"], queryFn: () => listC({ data: { pw } }) }));
+  const cat = (rows as (Cat & { kind: string; active: boolean })[]).filter((r) => r.kind === "item" && r.active);
+  const setItems = (title: string, v: [string, number][] | null) => setF((o) => { if (!o) return o; const m = { ...o.presetItems }; if (v) m[title] = v; else delete m[title]; return { ...o, presetItems: m }; });
+  const itemsOf = (p: Parameters<typeof defaultPresetItems>[0]) => f ? <PresetItems title={p.title} base={defaultPresetItems(p)} value={f.presetItems[p.title]} cat={cat} onChange={(v) => setItems(p.title, v)} /> : null;
   const up = (p: Partial<Formulas>) => setF((o) => (o ? { ...o, ...p } : o));
   const setRange = (i: number, j: number, v: number) => setF((o) => { if (!o) return o; const r = o.resRanges.map((x) => [...x]); r[i]![j] = v; return { ...o, resRanges: r }; });
 
@@ -217,7 +271,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
                 <p className="text-[11px] text-muted-foreground">نطاق كل منظومة = الاستهلاك اليومي (كيلووات ساعة / يوم). يُختار أقرب نطاق للعميل.</p>
                 {groupsOf(RES).map((g, gi) => (
                   <Eq key={g} n={gi + 1} title={g}>
-                    {RES.map((p, i) => p.group !== g ? null : f.resRanges[i]!.map((v, j) => <Num key={i + "-" + j} label={p.title} value={v} onChange={(n) => setRange(i, j, n)} />))}
+                    {RES.map((p, i) => p.group !== g ? null : <div key={i} className="space-y-1">{f.resRanges[i]!.map((v, j) => <Num key={j} label={p.title} value={v} onChange={(n) => setRange(i, j, n)} />)}{itemsOf(p)}</div>)}
                   </Eq>
                 ))}
               </div>
@@ -230,7 +284,7 @@ export function FormulasDialog({ pw, code, onClose }: { pw: string; code: string
                   <Eq key={g} n={gi + 1} title={g}>
                     {COM.filter((p) => p.group === g).map((p) => {
                       const k = comKeyOf(p), auto = Math.round(panelsOf(p) * (p.pw ?? 720) * f.sun / 10) / 100, edited = (f.comRanges[k] ?? 0) > 0;
-                      return <Num key={p.title} label={p.title} hint={edited ? `معدّل — التلقائي ${auto}` : "تلقائي"} value={edited ? f.comRanges[k]! : auto} onChange={(n) => up({ comRanges: { ...f.comRanges, [k]: n } })} />;
+                      return <div key={p.title} className="space-y-1"><Num label={p.title} hint={edited ? `معدّل — التلقائي ${auto}` : "تلقائي"} value={edited ? f.comRanges[k]! : auto} onChange={(n) => up({ comRanges: { ...f.comRanges, [k]: n } })} />{itemsOf(p)}</div>;
                     })}
                   </Eq>
                 ))}

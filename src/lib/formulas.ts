@@ -27,6 +27,7 @@ export type Formulas = {
   batKwh: number;        // battery size (kWh) for battery count
   mode: "eq" | "ranges"; // 8–125 kW: sized by equations or by ready-made ranges (app + bot)
   batTol: number;        // night kWh shortfall accepted before adding a battery
+  presetItems: Record<string, [string, number][]>; // edited ready-made system items (catalog key, qty) by preset title; missing = original
   comRanges: Record<string, number>; // ranges mode: commercial system range (kWh/day) by comKey; missing = panels × W × sun
 };
 // Commercial system id shared with the bot (INV_TABLE rows): inverter kW - phase (1|3, HV = 3) - panels.
@@ -37,7 +38,7 @@ export const DEFAULT_FORMULAS: Formulas = {
   dcMaxLines: 10, dcStep: 2, acSingleV: 220, acThreeDiv: 658, acSafety: 1.25, cableM: 1, mc4PerString: 1,
   panelVoc: 48.5, coldFactor: 1.1, vmaxSingle: 500, vmaxThree: 800,
   vmaxHV: 1000, hvMinBat: 4, hvBatPerBcu: 12,
-  panelW: 720, dcRatio: 1.3, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, mode: "eq", comRanges: {},
+  panelW: 720, dcRatio: 1.3, lvMaxKw: 40, maxInverters: 5, batKwh: 16, batTol: 1, mode: "eq", comRanges: {}, presetItems: {},
 };
 export const F: Formulas = structuredClone(DEFAULT_FORMULAS);
 export const mergeFormulas = (v: unknown): Formulas => {
@@ -54,6 +55,7 @@ export const mergeFormulas = (v: unknown): Formulas => {
     vmaxHV: num(o.vmaxHV, D.vmaxHV), hvMinBat: num(o.hvMinBat, D.hvMinBat), hvBatPerBcu: num(o.hvBatPerBcu, D.hvBatPerBcu),
     panelW: num(o.panelW, D.panelW), dcRatio: num(o.dcRatio, D.dcRatio), lvMaxKw: num(o.lvMaxKw, D.lvMaxKw), maxInverters: num(o.maxInverters, D.maxInverters), batKwh: num(o.batKwh, D.batKwh), batTol: typeof o.batTol === "number" && o.batTol >= 0 ? o.batTol : D.batTol,
     mode: o.mode === "ranges" ? "ranges" : "eq",
+    presetItems: Object.fromEntries(Object.entries(o.presetItems && typeof o.presetItems === "object" ? o.presetItems : {}).filter(([, l]) => Array.isArray(l) && l.length > 0 && l.every((x) => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "number" && x[1] > 0))) as Record<string, [string, number][]>,
     comRanges: Object.fromEntries(Object.entries(o.comRanges && typeof o.comRanges === "object" ? o.comRanges : {}).filter(([, x]) => typeof x === "number" && isFinite(x) && x > 0)),
   };
 };

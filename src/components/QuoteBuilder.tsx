@@ -117,6 +117,9 @@ PRESETS.push(...COMMERCIAL);
 // production = panels × panel W × 5 / 1000.
 // Ranges mode: an edited commercial range (F.comRanges, same key as the bot's ACTES_COM_RANGES) replaces it.
 export const panelsOf = (p: Preset) => p.panels ?? Number((p.title.match(/(\d+) لوح/) ?? [])[1] ?? 0);
+// Original items of a ready-made system as [catalog key, qty]; bot lines are linked to catalog keys.
+export const defaultPresetItems = (p: Preset): [string, number][] =>
+  p.lines ? p.lines.map((l) => [catalogKeyFor(l) ?? l.key, l.qty] as [string, number]) : p.items;
 export const comKeyOf = (p: Preset) => comKey(Number((p.group.match(/(\d+(?:\.\d+)?) كيلو/) ?? [])[1] ?? 0), /3 فاز|منظومات تجارية/.test(p.group), panelsOf(p));
 export const dailyProduction = (p: Preset) => {
   if (p.type === "com" && F.mode === "ranges") { const r = F.comRanges[comKeyOf(p)]; if (r && r > 0) return r; }
@@ -598,7 +601,9 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
     setEq(null);
     loadPreset({ type: eq.type, group: `${p.kw} كيلو`, title: `${p.units > 1 ? `${p.units}× ` : ""}${p.kw} كيلو`, items: sys });
   };
-  function loadPreset(p: Preset) {
+  function loadPreset(p0: Preset) {
+    const ed = F.presetItems[p0.title];
+    const p: Preset = ed ? (({ lines: _l, ...r }) => ({ ...r, items: ed }))(p0) : p0;
     // Like the bot: every linked line takes name, specs, unit and price live from the catalog.
     const out: Line[] = p.lines ? p.lines.map((l) => {
       const k = catalogKeyFor(l), r = k ? items.find((x) => x.key === k) : null;
