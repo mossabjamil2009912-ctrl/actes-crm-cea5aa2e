@@ -20,3 +20,6 @@
 - [x] Connect GitHub API (project moved to another workspace, Nov 17)
 - [x] Connect n8n (project moved to another workspace, Nov 17)
 - [x] Ranges mode: business system ranges editable by hand (app + bot)
+
+- [ ] Cabinet ±tolerance rule + ordered storage equations (app, bot)
+- [ ] Reconnect GitHub API and n8n in the new workspace
