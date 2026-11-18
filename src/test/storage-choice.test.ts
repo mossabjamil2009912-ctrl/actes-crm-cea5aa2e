@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { storageParts } from "@/lib/storage";
+import { storageParts, storageAvailable } from "@/lib/storage";
 import { DEFAULT_FORMULAS as D } from "@/lib/formulas";
 
 describe("HV storage choice (matches the old bot storOptions)", () => {
@@ -14,4 +14,5 @@ describe("HV storage choice (matches the old bot storOptions)", () => {
   it("256 kWh → 1 Pylontech 261", () => expect(storageParts("cab261", 256, D)).toEqual([["CAB_PYLON_261", 1]]));
   it("300 kWh → no Pylontech 313", () => expect(storageParts("cab313", 300, D)).toBeNull());
   it("112 kWh → 1 Hithium 112C cabinet", () => expect(storageParts("cab112", 112, D)).toEqual([["CAB_HITHIUM_112", 1]]));
+  it("160 kWh hides every cabinet button but keeps racks", () => expect((["h112s", "pylon", "cab112", "cab261", "cab313"] as const).filter((c) => storageAvailable(c, 160, D))).toEqual(["h112s", "pylon"]));
 });
