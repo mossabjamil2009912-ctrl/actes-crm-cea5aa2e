@@ -16,3 +16,8 @@ describe("HV storage choice (matches the old bot storOptions)", () => {
   it("112 kWh → 1 Hithium 112C cabinet", () => expect(storageParts("cab112", 112, D)).toEqual([["CAB_HITHIUM_112", 1]]));
   it("160 kWh hides every cabinet button but keeps racks", () => expect((["h112s", "pylon", "cab112", "cab261", "cab313"] as const).filter((c) => storageAvailable(c, 160, D))).toEqual(["h112s", "pylon"]));
 });
+
+describe("cabinets compare to customer night need", () => {
+  it("110 kWh night need offers one 112C cabinet", () => expect(storageParts("cab112", 110, D)).toEqual([["CAB_HITHIUM_112", 1]]));
+  it("150 kWh night need hides the 112C cabinet", () => expect(storageParts("cab112", 150, D)).toBeNull());
+});

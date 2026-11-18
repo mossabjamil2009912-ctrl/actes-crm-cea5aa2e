@@ -430,6 +430,7 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
   const [loadKw, setLoadKw] = useState("");
   const [hvBase, setHvBase] = useState<Line[] | null>(null); // HV system before the storage choice
   const [storage, setStorage] = useState<StorageChoice>("h112s");
+  const [nightNeed, setNightNeed] = useState<number | null>(null); // customer night kWh — cabinets/Pylontech compare to this
   const getKwh = useServerFn(getKwhPrice);
   const saveKwh = useServerFn(setKwhPrice);
   const { data: kwhData, refetch: refetchKwh } = useQuery(offlineQuery({ queryKey: ["kwh_price"], queryFn: () => getKwh({ data: { pw } }) }));
@@ -597,10 +598,11 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
     } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); }
   };
   // Only the recommended system → load it straight away (no independence step).
-  const showTiers = (t0: Tiers | null) => { const t = tiersDayNight(t0, dn, Number(daily) > 0 ? dailyNeed(path ?? "res", comM ?? "bill", Number(daily), kwhPrice) : undefined); setTiers(null); if (t) loadPreset(t.rec); };
+  const showTiers = (t0: Tiers | null) => { const nd = Number(daily) > 0 ? dailyNeed(path ?? "res", comM ?? "bill", Number(daily), kwhPrice) : undefined; setNightNeed(nd ? (nd * F.night[dn]) / 100 : null); const t = tiersDayNight(t0, dn, nd); setTiers(null); if (t) loadPreset(t.rec); };
   const pickInv = (p: InvPick) => {
     if (!eq) return;
     const sys = buildSystem(eq.template, items as EqItem[], eq.need, F.night[dn], p);
+    setNightNeed((eq.need * F.night[dn]) / 100);
     setEq(null);
     loadPreset({ type: eq.type, group: `${p.kw} كيلو`, title: `${p.units > 1 ? `${p.units}× ` : ""}${p.kw} كيلو`, items: sys });
   };
@@ -626,7 +628,7 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
   }
   const pickStorage = (c: StorageChoice) => {
     if (!hvBase) return;
-    const next = applyStorage(hvBase, c, items as EqItem[]);
+    const next = applyStorage(hvBase, c, items as EqItem[], F, nightNeed ?? undefined);
     setStorage(c); setLines(Object.fromEntries(next.map((l) => [l.key, l]))); void generate(next);
   };
   const loadQuote = (qt: (typeof quotes)[number]) => {
@@ -718,7 +720,7 @@ export function QuoteBuilder({ pw, initialCustomerId }: { pw: string; initialCus
           <div className="rounded-xl border border-primary/30 bg-card p-2">
             <div className="mb-1 text-xs font-bold">اختر نظام تخزين الطاقة:</div>
             <div className="flex flex-wrap gap-1">
-              {(Object.keys(STORAGE_LABELS) as StorageChoice[]).filter((c) => storageAvailable(c, hvCapacity(hvBase, items as EqItem[]))).map((c) => (
+              {(Object.keys(STORAGE_LABELS) as StorageChoice[]).filter((c) => storageAvailable(c, nightNeed ?? hvCapacity(hvBase, items as EqItem[]))).map((c) => (
                 <button key={c} type="button" onClick={() => pickStorage(c)} aria-pressed={storage === c} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${storage === c ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{storage === c ? "✓ " : ""}{STORAGE_LABELS[c]}</button>
               ))}
             </div>

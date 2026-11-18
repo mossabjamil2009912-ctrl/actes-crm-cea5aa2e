@@ -35,8 +35,9 @@ const isHvBat = (r: EqItem | undefined, l: EqLine) => r?.category === "batteries
 export const hvCapacity = (lines: EqLine[], items: EqItem[], f: Formulas = F) =>
   lines.reduce((s, l) => s + (isHvBat(items.find((i) => i.key === l.key), l) ? l.qty : 0), 0) * f.batKwh;
 
-export function applyStorage<L extends EqLine>(lines: L[], choice: StorageChoice, items: EqItem[], f: Formulas = F): L[] {
-  const parts = storageParts(choice, hvCapacity(lines, items, f), f);
+export function applyStorage<L extends EqLine>(lines: L[], choice: StorageChoice, items: EqItem[], f: Formulas = F, need?: number): L[] {
+  // need = customer night kWh (daily × night%); falls back to HV batteries × kWh when unknown.
+  const parts = storageParts(choice, need ?? hvCapacity(lines, items, f), f);
   if (!parts || !lines.length) return lines;
   const found = parts.map(([k, q]) => [items.find((i) => i.key === k), q] as const);
   if (found.some(([r]) => !r)) return lines;
