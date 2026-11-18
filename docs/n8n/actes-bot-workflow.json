@@ -4696,6 +4696,26 @@
  "pinData": {},
  "meta": null,
  "tags": [],
+ "shared": [
+  {
+   "role": "workflow:owner",
+   "workflowId": "0XTNcO8mFT8cXsEB",
+   "projectId": "uZMS8gc0JYLDlxNb",
+   "project": {
+    "id": "uZMS8gc0JYLDlxNb",
+    "name": "SUFYAN ALWSABI <sufiyangamilali77@gmail.com>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "621b2263-e68f-48c6-9948-13a3b4adac87",
+    "createdAt": "2026-09-20T15:18:02.796Z",
+    "updatedAt": "2026-09-20T15:36:17.754Z"
+   },
+   "createdAt": "2026-10-17T14:57:46.704Z",
+   "updatedAt": "2026-10-17T14:57:46.704Z"
+  }
+ ],
  "activeVersion": {
   "versionId": "42e89b75-1848-4d6f-bf6a-01bc7f107023",
   "workflowId": "0XTNcO8mFT8cXsEB",

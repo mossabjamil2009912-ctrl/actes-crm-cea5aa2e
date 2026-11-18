@@ -17,3 +17,18 @@ Summary of every request and decision so far, in order. Rules live in `AGENTS.md
 ## Open / next
 - Confirm DC box and control counts chosen for the 204-panel 80 kW system.
 - dcRatio 1.3 and lvMaxKw 40 are provisional.
+
+## Continued (2026-11-17 → 2026-11-18)
+12. All 55 HV systems (50/80/125 kW × 1–5 inverters) from bot `BIG_ROWS` added to QuoteBuilder and the ranges screen; shared comKey for two duplicates (same as bot).
+13. Ranges screen: each system has "الأصناف" editor (change qty, swap item from same category, add/delete, restore) stored in `formulas.presetItems`.
+14. Checkmark ✓ on the active system: "عبر المعادلات" (default, active) or "عبر النطاقات الجاهزة". Range/item edits are saved but applied ONLY when ✓ is on ranges and saved. Bot follows `formulas.mode`; bot does not yet use `presetItems`.
+15. Project moved to a new workspace; GitHub and n8n connectors reconnected (GITHUB_API_KEY, N8N_API_KEY).
+16. HV storage choice restored in commercial flow (app + bot): Hithium 112S racks (default), Pylontech racks (M1 ≤109.02 kWh, else M5), cabinets Hithium 112C / Pylontech 261 / 313 — now scaled by equations (`src/lib/storage.ts` ↔ bot `ACTES_STORAGE_*`, 468-case parity 0 mismatches). Editable: cabKwh 112, m1Kwh 4.74, m5Kwh 15.68, m1MaxKwh 109.02.
+17. Explained how edits flow: CRM saves to database → bot reads `/api/public/bot-catalog` on every message; no publish needed for data changes, only for code changes.
+18. Bot text edits ("المسار"): fixed the one saved edit ("كم تدفع الفاتورة الشهرية بالريال اليمني؟") whose original text did not match the bot exactly.
+
+## Open / next
+- Bot should use `presetItems` when ✓ is on ranges (app already does).
+- Verify BCU/EBC/BDC counts for 3–5 inverter HV systems.
+- dcRatio 1.3 and lvMaxKw 40 still provisional.
+- Publish after code changes so the bot/app use them.

@@ -10,7 +10,7 @@ Brand: **ACTES** (never ACTS). Published: https://actes-crm.lovable.app
 - Daily job `/api/public/jobs/github-backup` writes every table as JSON to private repo `actes-crm-data-backup` under `data/<table>.json`. To restore in a new backend: create schema, then insert these JSON files.
 
 ## After moving workspace / importing
-1. Reconnect n8n and GitHub connectors.
+1. Reconnect n8n and GitHub connectors (secrets GITHUB_API_KEY, N8N_API_KEY).
 2. Secrets needed (names only): DASHBOARD_PASSWORD, BOT_INGEST_SECRET, ACTES_DB_SECRET_KEY, GITHUB_API_KEY.
 3. Restore data from `actes-crm-data-backup`.
 4. Publish; keep old hosts in LEGACY_FRONTEND_HOSTS.
@@ -22,7 +22,7 @@ Rules and decisions: see `AGENTS.md`.
 - ACTES standalone app linked via acts-bridge and tested (service request reached CRM chats + ACTES tab).
 - Full history of requests: see `AGENTS.md` rules + `.lovable/plan/` archived plans.
 
-## Latest state (2026-11-17)
+## Latest state (2026-11-18)
 - Read `docs/CONVERSATION_HISTORY.md` for the full request history and open items.
 - Bot workflow copy: `docs/n8n/actes-bot-workflow.json` (put the real BOT_INGEST_SECRET back before importing into n8n).
 - Project memory copy: `docs/project-memory/` — recreate as project memory after import.
